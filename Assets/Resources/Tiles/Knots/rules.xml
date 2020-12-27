@@ -1,0 +1,17 @@
+﻿<set size="2">
+  <tiles>
+
+    <tile name ="empty" frequency ="1,0" L="0" R="0" U="0" D="0"/>
+    <tile name ="corner" frequency ="1,0" L="0" R="1" U="1" D="0"/>
+    <!--
+    
+    <tile name ="line" frequency ="10,0" L="1" R="1" U="0" D="0"/>
+    <tile name ="cross" frequency ="1,0" L="1" R="1" U="1" D="1"/>
+    <tile name ="t" frequency ="1,0" L="1" R="1" U="0" D="1"/>
+    <tile name ="corner0" frequency ="1,0" L="0" R="1" U="1" D="0"/>
+    <tile name ="corner1" frequency ="1,0" L="1" R="0" U="1" D="0"/>
+    <tile name ="corner2" frequency ="1,0" L="0" R="1" U="0" D="1"/>
+    <tile name ="corner3" frequency ="1,0" L="1" R="0" U="0" D="1"/>
+    -->
+  </tiles>
+</set>
