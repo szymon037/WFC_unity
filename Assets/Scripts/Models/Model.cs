@@ -14,12 +14,16 @@ public abstract class Model : MonoBehaviour
     public static Tile[] tiles;
     public GameObject[][] output;
     public int tileSize;
+    public bool seamless;
+    public int[,] dir = new int[4, 2] { { -1, 0 }, { 1, 0 }, { 0, 1 }, { 0, -1 } };
 
-    public Model(int gridWidth, int gridHeight, int tileSize)
+
+    public Model(int gridWidth, int gridHeight, int tileSize, bool seamless)
     {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.tileSize = tileSize;
+        this.seamless = seamless;
 
         stackSize = 0;
     }
@@ -109,25 +113,31 @@ public abstract class Model : MonoBehaviour
             int cellIndex = stackValue.Item1;
             int tileIndex = stackValue.Item2;
 
-            int U = cellIndex - gridWidth;
-            int D = cellIndex + gridWidth;
-            int L = cellIndex - 1;
-            int R = cellIndex + 1;
+            int[] neigbours = new int[4];
 
             // L - 0, R - 1, U - 2, D - 3
+            int x = cellIndex % gridWidth;
+            int y = cellIndex / gridWidth;
 
-            if (!OnBorder(L))
-                grid[L].UpdatePossibilities(tileIndex, 0);
+            for (int i = 0; i < 4; i++)
+            {
 
-            if (!OnBorder(R))
-                grid[R].UpdatePossibilities(tileIndex, 1);
+                int x2 = x + dir[i, 0];
+                int y2 = y + dir[i, 1];
 
-            if (!OnBorder(U))
-                grid[U].UpdatePossibilities(tileIndex, 2);
+                if (OnBorder(x2, y2) && !seamless)
+                    continue;
 
-            if (!OnBorder(D))
-                grid[D].UpdatePossibilities(tileIndex, 3);
+                if (x2 < 0)                  x2 += gridWidth;
+                else if (x2 >= gridWidth)    x2 -= gridWidth;
+                if (y2 < 0)                  y2 += gridHeight;
+                else if (y2 >= gridHeight)   y2 -= gridHeight;
 
+                int index2 = y2 * gridWidth + x2;
+
+                grid[index2].UpdatePossibilities(tileIndex, i);
+
+            }
         }
     }
 
@@ -138,7 +148,7 @@ public abstract class Model : MonoBehaviour
 
         for (int i = 0; i < grid.Length; i++)
         {
-            if (OnBorder(i))
+            if (OnBorder(i % gridWidth, i / gridWidth) && !seamless)
                 continue;
 
             float customEntropy = grid[i]._entropy;
@@ -174,7 +184,7 @@ public abstract class Model : MonoBehaviour
     }
 
     public abstract void GenerateOutput();
-    public abstract bool OnBorder(int index);
+    public abstract bool OnBorder(int x, int y);
 
 
 }

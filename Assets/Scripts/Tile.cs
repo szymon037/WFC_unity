@@ -9,12 +9,16 @@ public class Tile
     public byte[] _tileValues;
     public long _index;
     public GameObject _tileGameObject = null;
-
+    public Matrix4x4 _transform = Matrix4x4.identity;
     public Tile() { }
 
-    public Tile(byte[] values)
+    public Tile(byte[] values, float rotation, float scale)
     {
-        values = _tileValues;
+        _tileValues = values;
+        Quaternion rot = _transform.rotation * Quaternion.Euler(Vector3.up * rotation);
+        Matrix4x4 rotMatrix = Matrix4x4.Rotate(rot);
+        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(1f, 1f, scale));
+        _transform = rotMatrix * scaleMatrix;
     }
 
     // overlapping

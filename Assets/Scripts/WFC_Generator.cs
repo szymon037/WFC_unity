@@ -7,10 +7,10 @@ public class WFC_Generator : MonoBehaviour
 {
     void Start()
     {
-        TiledModel tm = new TiledModel(4, 4, 2, true, "Knots");
+        TiledModel tm = new TiledModel(20, 20, 2, true, true, "Knots");
         tm.Solve();
 
-        OverlappingModel om = new OverlappingModel(10, 10, 2, 3, false, tm.output);
+        OverlappingModel om = new OverlappingModel(10, 10, 2, false, 3, false, tm.output);
         om.Solve();
     }
 

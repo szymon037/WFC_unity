@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/// TODO:
+/// - tiles processing
+/// - drawing whole tiles on edges
+
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,15 +13,12 @@ class OverlappingModel : Model
     byte[,] indexMap;
     int N;
     private Dictionary<long, Tile> tilesDictionary = new Dictionary<long, Tile>();
-    int[,] dir = new int[4, 2] { { -1, 0 }, { 1, 0 }, { 0, 1 }, { 0, -1 } };
     public List<GameObject> gameObjects = new List<GameObject>();
     int ae = 0;
-    public OverlappingModel(int gridWidth, int gridHeight, int tileSize, int N, bool tileProcessing, GameObject[][] inputMap) : base(gridWidth, gridHeight, tileSize)
+    public OverlappingModel(int gridWidth, int gridHeight, int tileSize, bool seamless, int N, bool tileProcessing, GameObject[][] inputMap) : base(gridWidth, gridHeight, tileSize, seamless)
     {
         W = inputMap.Length;
         H = inputMap[0].Length;
-        Debug.Log("W: " + W);
-        Debug.Log("H: " + H);
         indexMap = new byte[W, H];
         this.N = N;
 
@@ -42,9 +43,10 @@ class OverlappingModel : Model
                 indexMap[x, y] = (byte)i;
             }
         }
+        Debug.Log("gameObjects.Count: " + gameObjects.Count);
 
         // tile creation
-        List<Tile> newTiles = new List<Tile>();
+        List <Tile> newTiles = new List<Tile>();
         for (int y = 0; y < H; y++)
         {
             for (int x = 0; x < W; x++)
@@ -53,13 +55,15 @@ class OverlappingModel : Model
                 CountWeights(tile);
             }
         }
-
+        //newTiles = tilesDictionary.Values.ToList();
+        Debug.Log("Tiles count: " + newTiles.Count);
         if (tileProcessing)
             ProcessTiles(); // creates rotations and reflections
-
+        //Debug.Log("ae: " + ae);
         newTiles = tilesDictionary.Values.ToList();
-
+        //newTiles.RemoveAt(newTiles.Count - 1);
         Debug.Log("Tiles count: " + newTiles.Count);
+
         for (int i = 0; i < newTiles.Count; i++)
         {
             for (int d = 0; d < 4; d++)
@@ -116,11 +120,6 @@ class OverlappingModel : Model
         return new Tile(map, N, gameObjectCount);
     }
 
-    //private Bitmap LoadBitmap(string name)
-    //{
-    //    return new Bitmap(@"..\..\..\overlappingSamples\" + name + ".png");
-    //}
-
     private void CountWeights(Tile tile)
     {
         if (tilesDictionary.ContainsKey(tile._index))
@@ -132,7 +131,6 @@ class OverlappingModel : Model
         {
             tilesDictionary.Add(tile._index, tile);
             tilesDictionary[tile._index]._weight = 1;
-
         }
     }
 
@@ -148,9 +146,8 @@ class OverlappingModel : Model
             {
                 if (grid[y * gridWidth + x].GetTile() != null)
                 {
-                    GameObject go = gameObjects[grid[y * gridWidth + x].GetTile()._tileValues[0]];
-                    Instantiate(go, new Vector3(x, 0f, /*gridHeight -*/ y) * tileSize + offset, go.transform.rotation);
-
+                    GameObject go = Instantiate(gameObjects[grid[y * gridWidth + x].GetTile()._tileValues[0]], new Vector3(x, 0f, y) * tileSize + offset, grid[y * gridWidth + x].GetTile()._transform.rotation * gameObjects[grid[y * gridWidth + x].GetTile()._tileValues[0]].transform.rotation);
+                    go.transform.localScale = new Vector3(1f, 1f, grid[y * gridWidth + x].GetTile()._transform.lossyScale.z * gameObjects[grid[y * gridWidth + x].GetTile()._tileValues[0]].transform.localScale.z);
                 }
 
             }
@@ -159,11 +156,8 @@ class OverlappingModel : Model
         Debug.Log("output generation: overlapping");
     }
 
-    public override bool OnBorder(int index)
+    public override bool OnBorder(int x, int y)
     {
-        int x = index % gridWidth;
-        int y = index / gridWidth;
-
         return (x < 0 || y < 0 || x > gridWidth - N || y > gridHeight - N);
     }
 
@@ -174,10 +168,10 @@ class OverlappingModel : Model
         {
             for (int y = 0; y < N; y++)
             {
-                newValues[y * N + x] = tile._tileValues[N - y - 1 + x * N];
+                newValues[y * N + x] = tile._tileValues[N - y - 1 + x * N];     // 90 clockwise
             }
         }
-        return new Tile(newValues);
+        return new Tile(newValues, 90f, 1f);
     }
 
     public Tile ReflectTile(Tile tile)
@@ -190,7 +184,7 @@ class OverlappingModel : Model
                 newValues[y * N + x] = tile._tileValues[N - x - 1 + y * N];
             }
         }
-        return new Tile(newValues);
+        return new Tile(newValues, 0f, -1f);
     }
 
     public bool CheckAdjacencies(Tile tileA, Tile tileB, int d)

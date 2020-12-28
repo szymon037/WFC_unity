@@ -8,7 +8,7 @@ using System.Text;
 class TiledModel : Model
 {
 
-    public TiledModel(int gridWidth, int gridHeight, int tileSize, bool processTiles, string setName) : base(gridWidth, gridHeight, tileSize)
+    public TiledModel(int gridWidth, int gridHeight, int tileSize, bool seamless, bool processTiles, string setName) : base(gridWidth, gridHeight, tileSize, seamless)
     {
         this.tileSize = tileSize;
         ReadData(setName);
@@ -134,7 +134,7 @@ class TiledModel : Model
         {
             for (int x = 0; x < gridWidth; x++)
             {
-                output[x][y] = Instantiate(grid[y * gridWidth + x]._tile._tileGameObject, new Vector3(x, 0f, gridHeight - y) * tileSize, grid[y * gridWidth + x]._tile._tileGameObject.transform.rotation);
+                output[x][y] = Instantiate(grid[y * gridWidth + x]._tile._tileGameObject, new Vector3(x, 0f, /*gridHeight - */y) * tileSize, grid[y * gridWidth + x]._tile._tileGameObject.transform.rotation);
             }
         }
 
@@ -150,11 +150,8 @@ class TiledModel : Model
 
     }
 
-    public override bool OnBorder(int index)
+    public override bool OnBorder(int x, int y)
     {
-        int x = index % gridWidth;
-        int y = index / gridWidth;
-
         return (x < 0 || y < 0 || x >= gridWidth || y >= gridHeight);
     }
 
