@@ -27,16 +27,15 @@ public class Cell
 
         for (int i = 0; i < compatible.Length; i++)
         {
-            _compatible[i] = new int[4];
-            for (int j = 0; j < 4; j++)
+            _compatible[i] = new int[6];
+            for (int d = 0; d < 6; d++)
             {
-                _compatible[i][j] = compatible[i][j];
+                _compatible[i][d] = compatible[i][d];
             }
         }
     }
     public void ChooseTile()
     {
-
         float[] frequencyHints = new float[Model.tiles.Length];
         float sum = 0;
 

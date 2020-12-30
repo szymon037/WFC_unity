@@ -5,13 +5,14 @@ using UnityEngine;
 public class Tile
 {
     public float _weight;
-    public int[][] _adjacencies = new int[4][];  // L - 0, R - 1, U - 2, D - 3
+    public int[][] _adjacencies = new int[6][];  // L - 0, R - 1, U - 2, D - 3, F - 4, B - 5
     public byte[] _tileValues;
     public long _index;
     public GameObject _tileGameObject = null;
     public Matrix4x4 _transform = Matrix4x4.identity;
     public Tile() { }
 
+    // overlapping
     public Tile(byte[] values, float rotation, float scale)
     {
         _tileValues = values;
@@ -21,20 +22,19 @@ public class Tile
         _transform = rotMatrix * scaleMatrix;
     }
 
-    // overlapping
-    public Tile(byte[] values, int N, int gameObjectsCount)
+    public Tile(byte[] values, int N, int N_depth, int gameObjectsCount)
     {
         _tileValues = values;
 
         long power = 1;
-        for (int i = 0; i < N * N; i++)
+        for (int i = 0; i < N * N * N_depth; i++)
         {
             _index += _tileValues[i] * power;
             power *= gameObjectsCount;
         }
     }
 
-    // custom
+    // tiled
     public Tile(Tile tile)
     {
         _weight = tile._weight;
@@ -47,7 +47,5 @@ public class Tile
         _weight = frequencyHint;
         _tileGameObject = tileGameObject;
         _tileValues = tileValues;
-
-
     }
 }

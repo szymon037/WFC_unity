@@ -8,7 +8,7 @@ using System.Text;
 class TiledModel : Model
 {
 
-    public TiledModel(int gridWidth, int gridHeight, int tileSize, bool seamless, bool processTiles, string setName) : base(gridWidth, gridHeight, tileSize, seamless)
+    public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool seamless, bool processTiles, string setName) : base(gridWidth, gridLength, gridDepth, tileSize, seamless)
     {
         this.tileSize = tileSize;
         ReadData(setName);
@@ -23,7 +23,7 @@ class TiledModel : Model
     {
         for (int i = 0; i < tiles.Length; i++)
         {
-            for (int d = 0; d < 4; d++)
+            for (int d = 0; d < 6; d++)
             {
                 List<int> l = new List<int>();
 
@@ -53,13 +53,13 @@ class TiledModel : Model
                     if (reader.Name == "tile")
                     {
                         Tile tile = new Tile();
-                        byte[] tileValues = new byte[4];
+                        byte[] tileValues = new byte[6];
                         while (reader.MoveToNextAttribute())
                         {
                             if (reader.Name == "name")
                             {
                                 string name = reader.Value;
-                                tile._tileGameObject = LoadTileGameObject("Tiles\\Knots\\" + name);
+                                tile._tileGameObject = LoadTileGameObject("Tiles\\" + setName + "\\" + name);
                             }
 
                             if (reader.Name == "frequency")
@@ -73,6 +73,10 @@ class TiledModel : Model
                                 tileValues[2] = CalculateBitValue(reader.Value);
                             if (reader.Name == "D")
                                 tileValues[3] = CalculateBitValue(reader.Value);
+                            if (reader.Name == "F")
+                                tileValues[4] = CalculateBitValue(reader.Value);
+                            if (reader.Name == "B")
+                                tileValues[5] = CalculateBitValue(reader.Value);
 
                         }
                         tile._tileValues = tileValues;
@@ -130,45 +134,37 @@ class TiledModel : Model
     }
     public override void GenerateOutput()
     {
-        for (int y = 0; y < gridHeight; y++)
-        {
-            for (int x = 0; x < gridWidth; x++)
-            {
-                output[x][y] = Instantiate(grid[y * gridWidth + x]._tile._tileGameObject, new Vector3(x, 0f, /*gridHeight - */y) * tileSize, grid[y * gridWidth + x]._tile._tileGameObject.transform.rotation);
-            }
-        }
-
-        /*for (int y = 0; y < gridHeight; y++)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int x = 0; x < gridWidth; x++)
-            {
-                sb.Append((grid[y * gridWidth + x]._tileIndex + " "));
-            }
-            Debug.Log(sb.ToString());
-        }*/
-
+        for (int z = 0; z < gridLength; z++)
+            for (int y = 0; y < gridDepth; y++)
+                for (int x = 0; x < gridWidth; x++)
+                {
+                    GameObject go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, new Vector3(x, y, z) * tileSize, grid[ID(x, y, z)]._tile._tileGameObject.transform.rotation);
+                    output[x][y][z] = go;
+                    //Destroy(go);
+                }
     }
 
-    public override bool OnBorder(int x, int y)
+    public override bool OnBorder(int x, int y, int z)
     {
-        return (x < 0 || y < 0 || x >= gridWidth || y >= gridHeight);
+        return (x < 0 || y < 0 || z < 0 || 
+                x >= gridWidth || y >= gridDepth || z >= gridLength);
     }
 
     public Tile RotateTile(Tile tile)
     {
-        if (tile == null || (tile._tileValues[0] == tile._tileValues[1] && tile._tileValues[0] == tile._tileValues[2] && tile._tileValues[0] == tile._tileValues[3]))
+        if (tile == null || (tile._tileValues[0] == tile._tileValues[1] && tile._tileValues[0] == tile._tileValues[4] && tile._tileValues[0] == tile._tileValues[5]))
             return null;
 
         GameObject rotatedTileGameObject = Object.Instantiate(tile._tileGameObject, Vector3.zero, tile._tileGameObject.transform.rotation);
         rotatedTileGameObject.transform.Rotate(new Vector3(0f, 90f, 0f));
-        //rotatedTileGameObject.name = "90";
-        Destroy(rotatedTileGameObject);
-        byte[] tileValues = new byte[4];
-        tileValues[0] = tile._tileValues[3];
-        tileValues[1] = tile._tileValues[2];
-        tileValues[2] = tile._tileValues[0];
-        tileValues[3] = tile._tileValues[1];
+        Object.Destroy(rotatedTileGameObject);
+        byte[] tileValues = new byte[6];
+        tileValues[0] = tile._tileValues[5];
+        tileValues[1] = tile._tileValues[4];
+        tileValues[2] = tile._tileValues[2];
+        tileValues[3] = tile._tileValues[3];
+        tileValues[4] = tile._tileValues[0];
+        tileValues[5] = tile._tileValues[1];
         return new Tile(tile._weight, rotatedTileGameObject, tileValues);
     }
 
@@ -177,19 +173,21 @@ class TiledModel : Model
         if (tile == null)
             return null;
 
-        bool threeDifferentValues = (tile._tileValues[0] != tile._tileValues[1] && tile._tileValues[0] != tile._tileValues[2] && tile._tileValues[1] != tile._tileValues[2]) || (tile._tileValues[0] != tile._tileValues[3] && tile._tileValues[0] != tile._tileValues[2] && tile._tileValues[3] != tile._tileValues[2]);
-        if (!((tile._tileValues[0] != tile._tileValues[1] && tile._tileValues[2] != tile._tileValues[3]) && threeDifferentValues))
+        bool threeDifferentValues = (tile._tileValues[0] != tile._tileValues[1] && tile._tileValues[0] != tile._tileValues[4] && tile._tileValues[1] != tile._tileValues[4]) || (tile._tileValues[0] != tile._tileValues[5] && tile._tileValues[0] != tile._tileValues[4] && tile._tileValues[5] != tile._tileValues[4]);
+        if (!((tile._tileValues[0] != tile._tileValues[1] && tile._tileValues[4] != tile._tileValues[5]) && threeDifferentValues))
             return null;
 
         GameObject reflectedTileGameObject = Object.Instantiate(tile._tileGameObject, Vector3.zero, tile._tileGameObject.transform.rotation);
         reflectedTileGameObject.transform.localScale = new Vector3(1f, 1f, -1f);
 
-        Destroy(reflectedTileGameObject);
-        byte[] tileValues = new byte[4];
+        Object.Destroy(reflectedTileGameObject);
+        byte[] tileValues = new byte[6];
         tileValues[0] = tile._tileValues[1];
         tileValues[1] = tile._tileValues[0];
         tileValues[2] = tile._tileValues[2];
         tileValues[3] = tile._tileValues[3];
+        tileValues[4] = tile._tileValues[4];
+        tileValues[5] = tile._tileValues[5];
 
         return new Tile(tile._weight, reflectedTileGameObject, tileValues);
     }

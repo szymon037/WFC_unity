@@ -3,6 +3,10 @@
 
     <tile name ="empty" frequency ="1,0" L="0" R="0" U="0" D="0" F="0" B="0"/>
     <tile name ="corner" frequency ="1,0" L="0" R="1" U="0" D="0" F="1" B="0"/>
+    <tile name ="vertCorner0" frequency ="1,0" L="0" R="1" U="1" D="0" F="0" B="0"/>
+    <tile name ="vertCorner1" frequency ="1,0" L="0" R="1" U="0" D="1" F="0" B="0"/>
+    <tile name ="vertCorner2" frequency ="1,0" L="1" R="0" U="0" D="1" F="0" B="0"/>
+    <tile name ="vertCorner3" frequency ="1,0" L="1" R="0" U="1" D="0" F="0" B="0"/>
     
     <!--
     <tile name ="line" frequency ="1,0" L="1" R="1" U="0" D="0" F="0" B="0"/>
