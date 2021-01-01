@@ -7,7 +7,6 @@ using System.Text;
 
 class TiledModel : Model
 {
-    private Vector3 offset = Vector3.zero;
     public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool seamless, bool processTiles, string setName) : base(gridWidth, gridLength, gridDepth, tileSize, seamless)
     {
         this.tileSize = tileSize;

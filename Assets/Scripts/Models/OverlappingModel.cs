@@ -1,6 +1,5 @@
 ﻿/// TODO:
 /// - tiles processing
-/// - drawing whole tiles on edges
 
 using System.Collections;
 using System.Collections.Generic;
@@ -24,7 +23,6 @@ class OverlappingModel : Model
         indexMap = new byte[W, D, L];
         this.N = N;
         this.N_depth = N_depth;
-
 
         for (int z = 0; z < L; z++)
             for (int y = 0; y < D; y++)
@@ -85,6 +83,113 @@ class OverlappingModel : Model
         Init();
     }
 
+    // Constructor for infinity generation
+    public OverlappingModel(int gridWidth, int gridLength, int gridDepth, int tileSize, int N, int N_depth, bool tileProcessing, GameObject[][][] inputMap, int[][] neighbourCells, int xPos, int zPos) : base(gridWidth, gridLength, gridDepth, tileSize, false)
+    {
+        offset = new Vector3(xPos * gridWidth * tileSize, 0f, zPos * gridLength * tileSize);
+
+        W = inputMap.Length;        // x
+        D = inputMap[0].Length;     // y   
+        L = inputMap[0][0].Length;  // z
+        indexMap = new byte[W, D, L];
+        this.N = N;
+        this.N_depth = N_depth;
+
+        for (int z = 0; z < L; z++)
+            for (int y = 0; y < D; y++)
+                for (int x = 0; x < W; x++)
+                {
+                    int i = 0;
+                    GameObject currentGameObject = inputMap[x][y][z];
+
+                    for (int c = 0; c < gameObjects.Count; c++)
+                    {
+                        if (currentGameObject.name == gameObjects[c].name) /// TODO: NULL (CAUSE: SOLUTION NOT FOUND IN TILED)
+                        {
+                            //Debug.Log("same go: " + currentGameObject.name);
+                            break;
+                        }
+                        ++i;
+                    }
+
+                    if (gameObjects.Count == i) gameObjects.Add(currentGameObject);
+                    indexMap[x, y, z] = (byte)i;
+                }
+
+        // tile creation
+        List<Tile> newTiles = new List<Tile>();
+        for (int z = 0; z < L; z++)     /// 3D: should tile creation overlap in Y?
+            for (int y = 0; y < D; y++)
+                for (int x = 0; x < W; x++)
+                {
+                    Tile tile = CreateTile(x, y, z, gameObjects.Count);
+                    CountWeights(tile);
+                }
+        if (tileProcessing)
+            ProcessTiles(); // creates rotations and reflections
+        newTiles = tilesDictionary.Values.ToList();
+
+        for (int i = 0; i < newTiles.Count; i++)
+        {
+            for (int d = 0; d < 6; d++)
+            {
+                List<int> l = new List<int>();
+                for (int j = 0; j < newTiles.Count; j++)
+                {
+                    if (CheckAdjacencies(newTiles[i], newTiles[j], d))
+                        l.Add(j);
+                }
+                newTiles[i]._adjacencies[d] = l.ToArray();
+            }
+        }
+
+        tiles = newTiles.ToArray();
+        InitGrid();
+        Init();
+
+        /// PARSING NEIGBOURS
+        for (int i = 0; i < 4; i++)
+        {
+            if (neighbourCells[i] == null)
+                continue;
+
+            int dirIndex = (i > 1) ? i + 2 : i; // i'm so sorry
+            if (dirIndex == 0 || dirIndex == 1) // L
+            {
+                int x = (dirIndex == 0) ? 0 : gridWidth - 1;
+                for (int j = 0; j < neighbourCells[i].Length; j++)
+                {
+                    int y = j / gridLength;
+                    int z = j % gridLength;
+
+                    int index = ID(x, y, z);
+
+                    for (int m = 0; m < tiles.Length; m++)
+                        if (m != neighbourCells[i][j])
+                            grid[index].UpdatePossibilities(m, opposite[dirIndex]);
+                }
+            }
+
+            else if (dirIndex == 4 || dirIndex == 5)
+            {
+                int z = (dirIndex == 4) ? gridLength - 1 : 0;
+                for (int j = 0; j < neighbourCells[i].Length; j++)
+                {
+                    int y = j / gridLength;
+                    int x = j % gridLength;
+
+                    int index = ID(x, y, z);
+
+
+                    for (int m = 0; m < tiles.Length; m++)
+                        if (m != neighbourCells[i][j])
+                            grid[index].UpdatePossibilities(m, opposite[dirIndex]);
+                }
+            }
+
+        }
+    }
+
     private void ProcessTiles()
     {
         List<Tile> newTiles = new List<Tile>();
@@ -136,10 +241,6 @@ class OverlappingModel : Model
 
     public override void GenerateOutput()
     {
-        // instantiae GOs
-
-        Vector3 offset = new Vector3(50f, 0f, 0f);
-
         for (int z = 0; z < gridLength; z++)
             for (int y = 0; y < gridDepth; y++)
                 for (int x = 0; x < gridWidth; x++)
@@ -150,7 +251,23 @@ class OverlappingModel : Model
                         GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[0]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[0]].transform.rotation);
                         go.transform.localScale = new Vector3(1f, 1f, grid[id].GetTile()._transform.lossyScale.z * gameObjects[grid[id].GetTile()._tileValues[0]].transform.localScale.z);
                     }
-                   
+                    else /// TODO: CHECK IF THIS TILE (x2, y2, z2) IS NULL AS WELL
+                    {
+                        int x2 = Mathf.Min(x, gridWidth - N);
+                        int y2 = Mathf.Min(y, gridDepth - N_depth);
+                        int z2 = Mathf.Min(z, gridLength - N);
+
+                        int x_id = x - x2;
+                        int y_id = y - y2;
+                        int z_id = z - z2;
+
+                        id = ID(x2, y2, z2);
+                        int t_id = y_id * N * N + z_id * N + x_id;
+
+                        GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[t_id]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[t_id]].transform.rotation);
+                        go.transform.localScale = new Vector3(1f, 1f, grid[id].GetTile()._transform.lossyScale.z * gameObjects[grid[id].GetTile()._tileValues[t_id]].transform.localScale.z);
+                    }
+
                 }
 
 
