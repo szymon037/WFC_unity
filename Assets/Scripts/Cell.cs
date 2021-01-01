@@ -83,6 +83,18 @@ public class Cell
             ChooseTile();
     }
 
+    public int[] GetRemovedTiles()
+    {
+        List<int> removed = new List<int>();
+        for (int i = 0; i < _coefficients.Length; i++)
+        {
+            if (!_coefficients[i])
+                removed.Add(i);
+        }
+
+        return removed.ToArray();
+    }
+
 
     public Tile GetTile()
     {
@@ -103,7 +115,7 @@ public class Cell
             _entropy = 0;
         }
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 6; i++)
         {
             _compatible[tileIndex][i] = 0;
         }

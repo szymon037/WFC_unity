@@ -71,7 +71,7 @@ public abstract class Model
         }
     }
 
-    public void Solve()
+    public bool Solve()
     {
         int result = 0;
         do
@@ -82,13 +82,15 @@ public abstract class Model
         if (result == -1)
         {
             Debug.Log("Solution not found");
-            return;
+            return false;
         }
         else if (result == -2)
         {
             Debug.Log("DONE");
             GenerateOutput();
+            return true;
         }
+        return false;
     }
 
     private int Observe()

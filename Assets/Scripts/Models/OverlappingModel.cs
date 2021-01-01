@@ -35,7 +35,7 @@ class OverlappingModel : Model
 
                     for (int c = 0; c < gameObjects.Count; c++)
                     {
-                        if (currentGameObject.name == gameObjects[c].name)
+                        if (currentGameObject.name == gameObjects[c].name) /// TODO: NULL (CAUSE: SOLUTION NOT FOUND IN TILED)
                         {
                             //Debug.Log("same go: " + currentGameObject.name);
                             break;

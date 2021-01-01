@@ -7,7 +7,7 @@ using System.Text;
 
 class TiledModel : Model
 {
-
+    private Vector3 offset = Vector3.zero;
     public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool seamless, bool processTiles, string setName) : base(gridWidth, gridLength, gridDepth, tileSize, seamless)
     {
         this.tileSize = tileSize;
@@ -17,6 +17,62 @@ class TiledModel : Model
         CreateAdjacencies();
         InitGrid();
         Init();
+    }
+
+    public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool processTiles, string setName, int[][] neighbourCells, int xPos, int zPos) : base(gridWidth, gridLength, gridDepth, tileSize, false)
+    {
+        offset = new Vector3(xPos * gridWidth * tileSize, 0f, zPos * gridLength * tileSize);
+        /// TODO: process tiles in infinity mode only once
+        this.tileSize = tileSize;
+        ReadData(setName);
+        if (processTiles)
+            ProcessTiles();
+        CreateAdjacencies();
+        ///
+        InitGrid();
+        Init();
+
+        /// PARSING NEIGBOURS
+        for (int i = 0; i < 4; i++)
+        {
+            if (neighbourCells[i] == null)
+                continue;
+
+            int dirIndex = (i > 1) ? i + 2 : i; // i'm so sorry
+            if (dirIndex == 0 || dirIndex == 1) // L
+            {
+                int x = (dirIndex == 0) ? 0 : gridWidth - 1;
+                for (int j = 0; j < neighbourCells[i].Length; j++)
+                {
+                    int y = j / gridLength;
+                    int z = j % gridLength;
+
+                    int index = ID(x, y, z);
+
+                    for (int m = 0; m < tiles.Length; m++)
+                        if (m != neighbourCells[i][j])
+                            grid[index].UpdatePossibilities(m, opposite[dirIndex]);
+                }
+            }
+
+            else if (dirIndex == 4 || dirIndex == 5)
+            {
+                int z = (dirIndex == 4) ? gridLength - 1 : 0;
+                for (int j = 0; j < neighbourCells[i].Length; j++)
+                {
+                    int y = j / gridLength;
+                    int x = j % gridLength;
+
+                    int index = ID(x, y, z);
+
+
+                    for (int m = 0; m < tiles.Length; m++)
+                        if (m != neighbourCells[i][j])
+                            grid[index].UpdatePossibilities(m, opposite[dirIndex]);
+                }
+            }
+           
+        }
     }
 
     private void CreateAdjacencies()
@@ -117,6 +173,7 @@ class TiledModel : Model
 
             for (int j = 0; j < 3; j++)
             {
+                /// TODO: IT DOES NOT WORK? "I" TYPE IS ROTATED TWICE
                 // CHECK IF TILE IS "I" TYPE - ROTATE ONLY ONCE
                 rotationTile = RotateTile(rotationTile);
                 Tile reflectionTile = null;
@@ -138,7 +195,7 @@ class TiledModel : Model
             for (int y = 0; y < gridDepth; y++)
                 for (int x = 0; x < gridWidth; x++)
                 {
-                    GameObject go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, new Vector3(x, y, z) * tileSize, grid[ID(x, y, z)]._tile._tileGameObject.transform.rotation);
+                    GameObject go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, new Vector3(x, y, z) * tileSize + offset, grid[ID(x, y, z)]._tile._tileGameObject.transform.rotation);
                     output[x][y][z] = go;
                     //Destroy(go);
                 }

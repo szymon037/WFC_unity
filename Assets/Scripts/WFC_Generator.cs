@@ -16,13 +16,11 @@ public class WFC_Generator : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
-            ReloadAndGenerate();
+            ReloadScene();
     }
 
-    public void ReloadAndGenerate()
+    public void ReloadScene()
     {
-
-        
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
