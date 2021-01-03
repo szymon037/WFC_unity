@@ -10,6 +10,7 @@ public class WFC_Generator : MonoBehaviour
         TiledModel tm = new TiledModel(5, 5, 5, 2, true, true, "3DKnots");
         tm.Solve();
         OverlappingModel om = new OverlappingModel(5, 5, 5, 2, false, 3, 2, false, tm.output);
+        om.offset = new Vector3(20f, 0f, 0f);
         om.Solve();
     }
 

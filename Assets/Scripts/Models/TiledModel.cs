@@ -18,9 +18,9 @@ class TiledModel : Model
         Init();
     }
 
-    public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool processTiles, string setName, int[][] neighbourCells, int xPos, int zPos) : base(gridWidth, gridLength, gridDepth, tileSize, false)
+    public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool processTiles, string setName, int[][] neighbourCells, GameObject chunkGO) : base(gridWidth, gridLength, gridDepth, tileSize, false, chunkGO)
     {
-        offset = new Vector3(xPos * gridWidth * tileSize, 0f, zPos * gridLength * tileSize);
+        chunkGeneration = true;
         /// TODO: process tiles in infinity mode only once
         this.tileSize = tileSize;
         ReadData(setName);
@@ -194,9 +194,16 @@ class TiledModel : Model
             for (int y = 0; y < gridDepth; y++)
                 for (int x = 0; x < gridWidth; x++)
                 {
-                    GameObject go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, new Vector3(x, y, z) * tileSize + offset, grid[ID(x, y, z)]._tile._tileGameObject.transform.rotation);
+                    GameObject go = null;
+                    if (chunkGeneration)
+                    {
+                        go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, Vector3.zero, grid[ID(x, y, z)]._tile._tileGameObject.transform.rotation, chunkGO.transform);
+                        go.transform.localPosition = new Vector3(x, y, z) * tileSize;
+                    }
+                    else    
+                        go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, new Vector3(x, y, z) * tileSize + offset, grid[ID(x, y, z)]._tile._tileGameObject.transform.rotation);
                     output[x][y][z] = go;
-                    //Destroy(go);
+                    //Object.Destroy(go);
                 }
     }
 

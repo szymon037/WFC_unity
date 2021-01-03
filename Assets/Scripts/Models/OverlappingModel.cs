@@ -84,9 +84,9 @@ class OverlappingModel : Model
     }
 
     // Constructor for infinity generation
-    public OverlappingModel(int gridWidth, int gridLength, int gridDepth, int tileSize, int N, int N_depth, bool tileProcessing, GameObject[][][] inputMap, int[][] neighbourCells, int xPos, int zPos) : base(gridWidth, gridLength, gridDepth, tileSize, false)
+    public OverlappingModel(int gridWidth, int gridLength, int gridDepth, int tileSize, int N, int N_depth, bool tileProcessing, GameObject[][][] inputMap, int[][] neighbourCells, GameObject chunkGO) : base(gridWidth, gridLength, gridDepth, tileSize, false, chunkGO)
     {
-        offset = new Vector3(xPos * gridWidth * tileSize, 0f, zPos * gridLength * tileSize);
+        chunkGeneration = true;
 
         W = inputMap.Length;        // x
         D = inputMap[0].Length;     // y   
@@ -245,10 +245,11 @@ class OverlappingModel : Model
             for (int y = 0; y < gridDepth; y++)
                 for (int x = 0; x < gridWidth; x++)
                 {
+                    /// TODO: REMEMBER ABOUT chunkGeneration - DIFFERENT TYPE OF INSTANTIATE
                     int id = ID(x, y, z);
                     if (grid[id].GetTile() != null)
                     {
-                        GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[0]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[0]].transform.rotation);
+                        GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[0]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[0]].transform.rotation, chunkGO.transform);
                         go.transform.localScale = new Vector3(1f, 1f, grid[id].GetTile()._transform.lossyScale.z * gameObjects[grid[id].GetTile()._tileValues[0]].transform.localScale.z);
                     }
                     else /// TODO: CHECK IF THIS TILE (x2, y2, z2) IS NULL AS WELL

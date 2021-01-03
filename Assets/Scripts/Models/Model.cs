@@ -18,17 +18,19 @@ public abstract class Model
     public bool seamless;
     public int[,] dir = new int[6, 3] { { -1, 0, 0 }, { 1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1}, { 0, 0, -1 } }; // L R U D F B
     public Vector3 offset = Vector3.zero;
-
+    protected GameObject chunkGO;
+    protected bool chunkGeneration = false;
     ///TODO: clearing whole model on solve (so creating new Model is not needed)
     ///TODO: extrnal tile creator and processor - needed in infinity generator
 
-    public Model(int gridWidth, int gridLength, int gridDepth, int tileSize, bool seamless)
+    public Model(int gridWidth, int gridLength, int gridDepth, int tileSize, bool seamless, GameObject chunkGO = null)
     {
         this.gridWidth = gridWidth;
         this.gridLength = gridLength;
         this.gridDepth = gridDepth;
         this.tileSize = tileSize;
         this.seamless = seamless;
+        this.chunkGO = chunkGO;
 
         stackSize = 0;
     }
@@ -85,7 +87,6 @@ public abstract class Model
         if (result == -1)
         {
             Debug.Log("Solution not found");
-            GenerateOutput();
             return false;
         }
         else if (result == -2)
