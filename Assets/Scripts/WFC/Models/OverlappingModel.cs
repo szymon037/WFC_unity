@@ -30,6 +30,11 @@ class OverlappingModel : Model
                 {
                     int i = 0;
                     GameObject currentGameObject = inputMap[x][y][z];
+                    if (currentGameObject == null)
+                    {
+                        currentGameObject = new GameObject("Empty");
+                        Object.DestroyImmediate(currentGameObject);
+                    }
 
                     for (int c = 0; c < gameObjects.Count; c++)
                     {

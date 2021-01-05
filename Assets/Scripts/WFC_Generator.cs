@@ -7,11 +7,13 @@ public class WFC_Generator : MonoBehaviour
 {
     void Start()
     {
-        TiledModel tm = new TiledModel(5, 5, 5, 2, true, true, "3DKnots");
+        TiledModel tm = new TiledModel(5, 1, 5, 2, true, true, "Knots");
         tm.Solve();
-        OverlappingModel om = new OverlappingModel(5, 5, 5, 2, false, 3, 2, false, tm.output);
+
+        /*OverlappingModel om = new OverlappingModel(10, 1, 10, 2, false, 3, 1, false, tm.output);
         om.offset = new Vector3(20f, 0f, 0f);
-        om.Solve();
+        om.Solve();*/
+
     }
 
     private void Update()
@@ -23,6 +25,13 @@ public class WFC_Generator : MonoBehaviour
     public void ReloadScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public static void GenerateOverlapping(GameObject[][][] input, Vector3 offset)
+    {
+        OverlappingModel om = new OverlappingModel(10, 1, 10, 2, false, 3, 1, false, input);
+        om.offset = offset;
+        om.Solve();
     }
 
 }
