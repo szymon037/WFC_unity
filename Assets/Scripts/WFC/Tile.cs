@@ -10,6 +10,7 @@ public class Tile
     public long _index;
     public GameObject _tileGameObject = null;
     public Matrix4x4 _transform = Matrix4x4.identity;
+    public string _tileGameObjectName;  // original name, not changed with rotation or (Clone)
     public Tile() { }
 
     // overlapping
@@ -38,14 +39,33 @@ public class Tile
     public Tile(Tile tile)
     {
         _weight = tile._weight;
+        _adjacencies = tile._adjacencies;
         _tileGameObject = tile._tileGameObject;
         _tileValues = tile._tileValues;
+        _tileGameObjectName = tile._tileGameObjectName;
+        _transform = tile._transform;
     }
 
-    public Tile(float frequencyHint, GameObject tileGameObject, byte[] tileValues)
+    public Tile(float frequencyHint, GameObject tileGameObject, byte[] tileValues, string tileGameObjectName, float rotation, float scale)
     {
         _weight = frequencyHint;
         _tileGameObject = tileGameObject;
         _tileValues = tileValues;
+        _tileGameObjectName = tileGameObjectName;
+
+        Quaternion rot = _transform.rotation * Quaternion.Euler(Vector3.up * rotation);
+        Matrix4x4 rotMatrix = Matrix4x4.Rotate(rot);
+        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(1f, 1f, scale));
+        _transform = rotMatrix * scaleMatrix;
+    }
+
+    public Tile(GameObject tileGameObject)
+    {
+        _tileGameObject = tileGameObject;
+    }
+
+    public string GetName()
+    {
+        return _tileGameObjectName + _transform.rotation.eulerAngles.ToString() + " " + _transform.lossyScale.ToString();
     }
 }

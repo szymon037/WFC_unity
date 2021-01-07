@@ -15,7 +15,7 @@ class OverlappingModel : Model
     private Dictionary<long, Tile> tilesDictionary = new Dictionary<long, Tile>();
     public List<GameObject> gameObjects = new List<GameObject>();
     int ae = 0;
-    public OverlappingModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool seamless, int N, int N_depth, bool tileProcessing, GameObject[][][] inputMap) : base(gridWidth, gridLength, gridDepth, tileSize, seamless)
+    public OverlappingModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, int N, int N_depth, bool tileProcessing, GameObject[][][] inputMap) : base(gridWidth, gridDepth, gridLength, tileSize, seamless)
     {
         W = inputMap.Length;        // x
         D = inputMap[0].Length;     // y   
@@ -24,6 +24,8 @@ class OverlappingModel : Model
         this.N = N;
         this.N_depth = N_depth;
 
+        GameObject empty = new GameObject("Empty");
+
         for (int z = 0; z < L; z++)
             for (int y = 0; y < D; y++)
                 for (int x = 0; x < W; x++)
@@ -31,10 +33,7 @@ class OverlappingModel : Model
                     int i = 0;
                     GameObject currentGameObject = inputMap[x][y][z];
                     if (currentGameObject == null)
-                    {
-                        currentGameObject = new GameObject("Empty");
-                        Object.DestroyImmediate(currentGameObject);
-                    }
+                        currentGameObject = empty;
 
                     for (int c = 0; c < gameObjects.Count; c++)
                     {
@@ -246,6 +245,7 @@ class OverlappingModel : Model
 
     public override void GenerateOutput()
     {
+        Transform parent = new GameObject("WFC_output_overlapping").transform;
         for (int z = 0; z < gridLength; z++)
             for (int y = 0; y < gridDepth; y++)
                 for (int x = 0; x < gridWidth; x++)
@@ -254,7 +254,12 @@ class OverlappingModel : Model
                     int id = ID(x, y, z);
                     if (grid[id].GetTile() != null)
                     {
-                        GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[0]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[0]].transform.rotation, chunkGO.transform);
+                        if (gameObjects[grid[id].GetTile()._tileValues[0]] == null)
+                            Debug.Log("1");
+                        if (grid[id].GetTile() == null)
+                            Debug.Log("2");
+                        //GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[0]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[0]].transform.rotation, chunkGO.transform);
+                        GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[0]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[0]].transform.rotation, parent);
                         go.transform.localScale = new Vector3(1f, 1f, grid[id].GetTile()._transform.lossyScale.z * gameObjects[grid[id].GetTile()._tileValues[0]].transform.localScale.z);
                     }
                     else /// TODO: CHECK IF THIS TILE (x2, y2, z2) IS NULL AS WELL
@@ -270,7 +275,7 @@ class OverlappingModel : Model
                         id = ID(x2, y2, z2);
                         int t_id = y_id * N * N + z_id * N + x_id;
 
-                        GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[t_id]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[t_id]].transform.rotation);
+                        GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[t_id]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[t_id]].transform.rotation, parent);
                         go.transform.localScale = new Vector3(1f, 1f, grid[id].GetTile()._transform.lossyScale.z * gameObjects[grid[id].GetTile()._tileValues[t_id]].transform.localScale.z);
                     }
 

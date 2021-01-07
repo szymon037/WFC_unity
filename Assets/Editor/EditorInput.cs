@@ -12,19 +12,23 @@ public class EditorInput : Editor
     {
         DrawDefaultInspector();
         editorBuilder = (EditorBuilder)target;
-        
+
         if (GUILayout.Button("Load tileset"))
             editorBuilder.LoadTiles();
         if (GUILayout.Button("Generate Grid/Reset"))
             editorBuilder.Init();
+        GUILayout.BeginHorizontal();
         if (GUILayout.Button("Generate Level"))
             editorBuilder.GenerateOverlapping();
+        if (GUILayout.Button("Autofill Level"))
+            editorBuilder.GenerateTiled();
+        GUILayout.EndHorizontal();
 
         GUILayoutOption[] options = new GUILayoutOption[6];
-        options[0] = GUILayout.Width(200f);
+        options[0] = GUILayout.Width(100f);
         options[1] = GUILayout.Height(100f);
-        options[2] = GUILayout.MinWidth(100f);
-        options[3] = GUILayout.MaxWidth(300f);
+        options[2] = GUILayout.MinWidth(50f);
+        options[3] = GUILayout.MaxWidth(100f);
         options[4] = GUILayout.MinHeight(50f);
         options[5] = GUILayout.MaxHeight(100f);
 
@@ -41,12 +45,12 @@ public class EditorInput : Editor
                 if (index >= editorBuilder.tiles.Length)
                     break;
                 
-                Texture t = AssetPreview.GetAssetPreview(editorBuilder.tiles[index]);
-                GUIContent content = new GUIContent(editorBuilder.tiles[index].name, t);
+                Texture t = AssetPreview.GetAssetPreview(editorBuilder.tiles[index]._tileGameObject);
+                GUIContent content = new GUIContent(editorBuilder.tiles[index]._tileGameObject.name, t);
                 style.imagePosition = ImagePosition.ImageAbove;
                 if (GUILayout.Button(content, style, options))
                 {
-                    editorBuilder.OnTilePrefabChange(editorBuilder.tiles[index]);
+                    editorBuilder.OnTilePrefabChange(index);
                 }
 
             }

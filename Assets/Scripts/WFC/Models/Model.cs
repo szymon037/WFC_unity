@@ -18,19 +18,19 @@ public abstract class Model
     public bool seamless;
     public int[,] dir = new int[6, 3] { { -1, 0, 0 }, { 1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1}, { 0, 0, -1 } }; // L R U D F B
     public Vector3 offset = Vector3.zero;
-    protected GameObject chunkGO;
+    protected GameObject parent;
     protected bool chunkGeneration = false;
     ///TODO: clearing whole model on solve (so creating new Model is not needed)
     ///TODO: extrnal tile creator and processor - needed in infinity generator
 
-    public Model(int gridWidth, int gridLength, int gridDepth, int tileSize, bool seamless, GameObject chunkGO = null)
+    public Model(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, GameObject parent = null)
     {
         this.gridWidth = gridWidth;
         this.gridLength = gridLength;
         this.gridDepth = gridDepth;
         this.tileSize = tileSize;
         this.seamless = seamless;
-        this.chunkGO = chunkGO;
+        this.parent = parent;
 
         stackSize = 0;
     }
@@ -100,7 +100,12 @@ public abstract class Model
 
     private int Observe()
     {
-        //updateStack.Clear();
+        if (stackSize > 0)
+        {
+            Propagate();
+            return 0;
+        }
+
         int index = FindLowestEntropy();
 
         if (index == -1) // contradiction
@@ -109,7 +114,6 @@ public abstract class Model
         if (index == -2) // done
             return -2;
 
-        //updateStack.Add(index);
         grid[index].ChooseTile(); // chooses randomly tile from available tiles
 
         Propagate();

@@ -34,38 +34,75 @@ public class Cell
             }
         }
     }
-    public void ChooseTile()
+
+    public Cell(int index, int tileIndex) // Used for autofill
     {
-        float[] frequencyHints = new float[Model.tiles.Length];
-        float sum = 0;
+        _index = index;
+        //_tileIndex = tileIndex;
+        //_tile = Model.tiles[_tileIndex];
+
+        for (int i = 0; i < Model.tiles.Length; i++)
+            _coefficients[i] = (_tileIndex) == i;
+
+        _possibilities = 1;
+        _entropy = 0f;
+
 
         for (int i = 0; i < Model.tiles.Length; i++)
         {
-            frequencyHints[i] = (_coefficients[i]) ? Model.tiles[i]._weight : 0f;
-            sum += frequencyHints[i];
-        }
-
-        float r = Random.value;
-
-        int index = 0;
-        float x = 0f;
-
-        for (int i = 0; i < Model.tiles.Length; i++)
-        {
-            x += frequencyHints[i] / sum;
-            if (x >= r)
+            _compatible[i] = new int[6];
+            for (int j = 0; j < 6; j++)
             {
-                index = i;
-                break;
+                _compatible[i][j] = Model.tiles[i]._adjacencies[j].Length;
+            }
+        }
+        ChooseTile(tileIndex);
+        Debug.Log("name of tgo: " + _tile._tileGameObject.name);
+        /*
+        for (int i = 0; i < _coefficients.Length; i++)
+        {
+            if (i != _tileIndex)
+                RemoveTile(i);
+        }*/
+    }
+
+    public void ChooseTile(int tileIndex = -1)
+    {
+        /*if (_index == 0)
+            Debug.Log("ChooseTile");*/
+        if (tileIndex == -1)
+        {
+            tileIndex = 0;
+            float[] frequencyHints = new float[Model.tiles.Length];
+            float sum = 0;
+
+            for (int i = 0; i < Model.tiles.Length; i++)
+            {
+                frequencyHints[i] = (_coefficients[i]) ? Model.tiles[i]._weight : 0f;
+                sum += frequencyHints[i];
+            }
+
+            float r = Random.value;
+
+            float x = 0f;
+
+            for (int i = 0; i < Model.tiles.Length; i++)
+            {
+                x += frequencyHints[i] / sum;
+                if (x >= r)
+                {
+                    tileIndex = i;
+                    break;
+                }
             }
         }
 
-        _tile = Model.tiles[index];
-        _tileIndex = index;
+        _tile = Model.tiles[tileIndex];
+        _tileIndex = tileIndex;
 
         for (int i = 0; i < _coefficients.Length; i++)
         {
-            if (i != index)
+            if (i != tileIndex)
                 RemoveTile(i);
         }
     }

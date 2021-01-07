@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
@@ -10,7 +11,8 @@ public class EditorBuilder : MonoBehaviour
     public GameObject[][][] outputMap;
     public Material transparentMat; ///TODO: load material from resources
     [HideInInspector] public GameObject currentTileGO;
-    [HideInInspector] public GameObject[] tiles;
+    //[HideInInspector] public GameObject[] gameObjects;
+    [HideInInspector] public Tile[] tiles;
     public string tilesetName;
 
     private GameObject collidersParent = null;
@@ -20,52 +22,69 @@ public class EditorBuilder : MonoBehaviour
     private GameObject highlightPlane = null;
     private GameObject highlightCurrentTileGO = null;
     private Vector3 invisiblePos = new Vector3(-999f, 0f, 0f);
-    private Quaternion tileRotation = Quaternion.identity;
-
+    //private Quaternion tileRotation = Quaternion.identity;
+    private int currentTileIndex = 0;
     public void Init()
     {
+        // load tiles from file
+        // if no .xml file, load tiles without adjacencies
+        // COPY tiles
+        // instead of choosing gameobject, choose tile
+        
+
+        foreach (Transform t in transform)
+            DestroyImmediate(t.gameObject);
+        //tileRotation = Quaternion.identity;
         // Start objects check
         if (collidersParent == null)
+        {
             collidersParent = new GameObject("Colliders");
+            collidersParent.transform.parent = transform;
+        }
         else
         {
             DestroyImmediate(collidersParent);
             collidersParent = new GameObject("Colliders");
+            collidersParent.transform.parent = transform;
         }
 
         if (tilesParent == null)
+        {
             tilesParent = new GameObject("Tiles");
+            tilesParent.transform.parent = transform;
+        }
         else
         {
             DestroyImmediate(tilesParent);
             tilesParent = new GameObject("Tiles");
+            tilesParent.transform.parent = transform;
         }
 
         if (plane == null)
         {
-            plane = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\Plane"), new Vector3((dimensions.x - 1) * 0.5f, -0.55f, (dimensions.z - 1) * 0.5f) * tileSize, Quaternion.identity);
+            plane = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\Plane"), new Vector3((dimensions.x - 1) * 0.5f, -0.55f, (dimensions.z - 1) * 0.5f) * tileSize, Quaternion.identity, transform);
             plane.transform.localScale = new Vector3(dimensions.x, 1f, dimensions.z) * tileSize * 0.1f;
         }
         else
         {
             DestroyImmediate(plane);
-            plane = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\Plane"), new Vector3((dimensions.x - 1) * 0.5f, -0.55f, (dimensions.z - 1) * 0.5f) * tileSize, Quaternion.identity);
+            plane = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\Plane"), new Vector3((dimensions.x - 1) * 0.5f, -0.55f, (dimensions.z - 1) * 0.5f) * tileSize, Quaternion.identity, transform);
             plane.transform.localScale = new Vector3(dimensions.x, 1f, dimensions.z) * tileSize * 0.1f;
         }
 
         if (highlightCube == null)
         {
-            highlightCube = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\HighlightCube"), invisiblePos, Quaternion.identity);
+            highlightCube = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\HighlightCube"), invisiblePos, Quaternion.identity, transform);
             highlightCube.transform.localScale *= tileSize;
         }
         if (highlightPlane == null)
         {
-            highlightPlane = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\HighlightPlane"), invisiblePos, Quaternion.identity);
+            highlightPlane = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\HighlightPlane"), invisiblePos, Quaternion.identity, transform);
             highlightPlane.transform.localScale *= tileSize;
         }
         if (highlightCurrentTileGO == null && currentTileGO != null)
         {
-            highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tileRotation);
+            highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._transform.rotation, transform);
             foreach (Transform child in highlightCurrentTileGO.transform)
                 child.GetComponent<Renderer>().material = transparentMat;
         }
@@ -103,6 +122,7 @@ public class EditorBuilder : MonoBehaviour
         {
             highlightCube.transform.position = invisiblePos;
             highlightPlane.transform.position = invisiblePos;
+            highlightCurrentTileGO.transform.position = invisiblePos;
             return;
         }
 
@@ -144,7 +164,8 @@ public class EditorBuilder : MonoBehaviour
             id.x >= dimensions.x || id.y >= dimensions.y || id.z >= dimensions.z)
             return;
 
-        GameObject tile = Instantiate(currentTileGO, spawnPos, tileRotation, tilesParent.transform);
+        GameObject tile = Instantiate(currentTileGO, spawnPos, tiles[currentTileIndex]._transform.rotation, tilesParent.transform);
+        tile.name = currentTileGO.name + tile.transform.rotation.eulerAngles.ToString() + " " + tile.transform.localScale.ToString();
         GameObject collider = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\colliderPrefab"), spawnPos, Quaternion.identity, collidersParent.transform);
         collider.transform.localScale *= tileSize;
 
@@ -169,37 +190,55 @@ public class EditorBuilder : MonoBehaviour
         outputMap[(int)id.x][(int)id.y][(int)id.z] = null;
     }
 
-    public void OnTilePrefabChange(GameObject tilePrefab)
+    public void OnTilePrefabChange(int index)
     {
-        if (tilePrefab == null)
+        if (tiles[index] == null)
             return;
-        currentTileGO = tilePrefab;
+        currentTileIndex = index;
+
+        currentTileGO = tiles[currentTileIndex]._tileGameObject;
         if (highlightCurrentTileGO != null)
             DestroyImmediate(highlightCurrentTileGO);
-        highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tileRotation);
-        //Destroy(highlightCurrentTileGO);
+        highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._transform.rotation, transform);
+
         foreach (Transform child in highlightCurrentTileGO.transform)
             child.GetComponent<Renderer>().material = transparentMat;
 
     }
 
-    public void LoadTiles()
-    {
-        /// TODO: check if tileset exists (simple null check is not enougn4h)
-        if (tilesetName == null || tilesetName == "")
-            Debug.Log("Tilest name not specified!");
-
-        tiles = Resources.LoadAll<GameObject>("Tiles\\" + tilesetName);
-    }
 
     public void RotateTile()
     {
-        tileRotation *= Quaternion.Euler(Vector3.up * 90f);
-        highlightCurrentTileGO.transform.rotation = tileRotation;
+        Tile rotationTile = TilesManager.RotateTile(tiles[currentTileIndex]);
+        if (rotationTile == null)
+        {
+            Debug.Log("could not rotate");
+            return;
+        }
+
+        tiles[currentTileIndex] = rotationTile;
+        highlightCurrentTileGO.transform.rotation = tiles[currentTileIndex]._transform.rotation;
+        //tileRotation *= Quaternion.Euler(Vector3.up * 90f);
+        //highlightCurrentTileGO.transform.rotation = tileRotation;
     }
 
     public void GenerateOverlapping()
     {
-        WFC_Generator.GenerateOverlapping(outputMap, new Vector3(20f, 0f, 0f));
+        WFC_Generator.GenerateOverlapping(outputMap, new Vector3(20f, 0f, 0f), tileSize);
+    }
+
+    public void GenerateTiled() // based on user's input
+    {
+        WFC_Generator.AutoFillTiled(outputMap, tileSize, tilesetName);
+    }
+    public void LoadTiles()
+    {
+        TilesManager.LoadTilesTiled(tilesetName, false);
+        tiles = new Tile[TilesManager.tilesTiled.Length];
+
+        for (int i = 0; i < TilesManager.tilesTiled.Length; i++)
+        {
+            tiles[i] = new Tile(TilesManager.tilesTiled[i]);
+        }
     }
 }
