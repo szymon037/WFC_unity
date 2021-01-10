@@ -180,8 +180,6 @@ public class EditorBuilder : MonoBehaviour
         Vector3 pos = rHit.transform.position;
         Vector3 id = pos / tileSize;
 
-        Debug.Log("id: " + id);
-
         if (outputMap[(int)id.x][(int)id.y][(int)id.z] == null)
             return;
         
@@ -224,12 +222,12 @@ public class EditorBuilder : MonoBehaviour
 
     public void GenerateOverlapping()
     {
-        WFC_Generator.GenerateOverlapping(outputMap, new Vector3(20f, 0f, 0f), tileSize);
+        WFC_Generator.GenerateOverlapping(outputMap, new Vector3(20f, 0f, 0f), tileSize, true);
     }
 
     public void GenerateTiled() // based on user's input
     {
-        WFC_Generator.AutoFillTiled(outputMap, tileSize, tilesetName);
+        WFC_Generator.AutoFillTiled(dimensions, outputMap, tileSize, tilesetName);
     }
     public void LoadTiles()
     {

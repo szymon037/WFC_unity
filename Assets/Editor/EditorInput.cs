@@ -7,7 +7,7 @@ using UnityEditor;
 public class EditorInput : Editor
 {
     private EditorBuilder editorBuilder;
-
+    private Vector2 scrollPosition;
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
@@ -36,7 +36,8 @@ public class EditorInput : Editor
             return;
 
         GUIStyle style = new GUIStyle(GUI.skin.button);
-        for (int i = 0; i < Mathf.CeilToInt((float)editorBuilder.tiles.Length / 3f); i++)
+        //scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(200), GUILayout.Height(500));
+        for (int i = 0; i < Mathf.CeilToInt(editorBuilder.tiles.Length / 3f); i++)
         {
             GUILayout.BeginHorizontal();
             for (int j = 0; j < 3; j++)
@@ -54,8 +55,9 @@ public class EditorInput : Editor
                 }
 
             }
-        GUILayout.EndHorizontal();
+            GUILayout.EndHorizontal();
         }
+        //GUILayout.EndScrollView();
         
     }
 

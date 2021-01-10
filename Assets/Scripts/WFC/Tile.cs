@@ -14,16 +14,16 @@ public class Tile
     public Tile() { }
 
     // overlapping
-    public Tile(byte[] values, float rotation, float scale)
+    /*public Tile(byte[] values, float rotation, float scale)
     {
         _tileValues = values;
         Quaternion rot = _transform.rotation * Quaternion.Euler(Vector3.up * rotation);
         Matrix4x4 rotMatrix = Matrix4x4.Rotate(rot);
         Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(1f, 1f, scale));
         _transform = rotMatrix * scaleMatrix;
-    }
+    }*/
 
-    public Tile(byte[] values, int N, int N_depth, int gameObjectsCount)
+    public Tile(byte[] values, int N, int N_depth, int gameObjectsCount, float rotation, float scale)
     {
         _tileValues = values;
 
@@ -33,6 +33,13 @@ public class Tile
             _index += _tileValues[i] * power;
             power *= gameObjectsCount;
         }
+
+        scale = Mathf.Sign(scale);
+
+        Quaternion rot = _transform.rotation * Quaternion.Euler(Vector3.up * rotation);
+        Matrix4x4 rotMatrix = Matrix4x4.Rotate(rot);
+        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(1f, 1f, scale));
+        _transform = rotMatrix * scaleMatrix;
     }
 
     // tiled

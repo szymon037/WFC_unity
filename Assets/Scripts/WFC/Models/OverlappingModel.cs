@@ -24,7 +24,7 @@ class OverlappingModel : Model
         this.N = N;
         this.N_depth = N_depth;
 
-        GameObject empty = new GameObject("Empty");
+        GameObject empty = new GameObject("Empty"); // TODO: make a prefab and load it at start? cuz this GO stays in scene
 
         for (int z = 0; z < L; z++)
             for (int y = 0; y < D; y++)
@@ -56,7 +56,7 @@ class OverlappingModel : Model
             for (int y = 0; y < D; y++)
                 for (int x = 0; x < W; x++)
                 {
-                    Tile tile = CreateTile(x, y, z, gameObjects.Count);
+                    Tile tile = CreateTile(x, y, z);
                     CountWeights(tile);
                 }
         //newTiles = tilesDictionary.Values.ToList();
@@ -126,7 +126,7 @@ class OverlappingModel : Model
             for (int y = 0; y < D; y++)
                 for (int x = 0; x < W; x++)
                 {
-                    Tile tile = CreateTile(x, y, z, gameObjects.Count);
+                    Tile tile = CreateTile(x, y, z);
                     CountWeights(tile);
                 }
         if (tileProcessing)
@@ -217,7 +217,7 @@ class OverlappingModel : Model
         }
     }
 
-    private Tile CreateTile(int x, int y, int z, int gameObjectCount)
+    private Tile CreateTile(int x, int y, int z)
     {
         byte[] map = new byte[N * N_depth * N];
 
@@ -226,7 +226,7 @@ class OverlappingModel : Model
                 for (int i_x = 0; i_x < N; i_x++)
                     map[i_y * N * N + i_z * N + i_x] = indexMap[(x + i_x) % W, (y + i_y) % D, (z + i_z) % L];
 
-        return new Tile(map, N, N_depth, gameObjectCount);
+        return new Tile(map, N, N_depth, gameObjects.Count, 0f, 1f);
     }
 
     private void CountWeights(Tile tile)
@@ -301,7 +301,7 @@ class OverlappingModel : Model
                 newValues[y * N + x] = tile._tileValues[N - y - 1 + x * N];     // 90 clockwise
             }
         }
-        return new Tile(newValues, 90f, 1f);
+        return new Tile(newValues, N, N_depth, gameObjects.Count, 90f, 1f);
     }
 
     public Tile ReflectTile(Tile tile)  /// TODO 3D
@@ -314,7 +314,7 @@ class OverlappingModel : Model
                 newValues[y * N + x] = tile._tileValues[N - x - 1 + y * N];
             }
         }
-        return new Tile(newValues, 0f, -1f);
+        return new Tile(newValues, N, N_depth, gameObjects.Count, 0f, -1f);
     }
 
     public bool CheckAdjacencies(Tile tileA, Tile tileB, int d)
