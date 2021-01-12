@@ -22,9 +22,9 @@ public class Tile
         _tileValues = values;
 
         long power = 1;
-        for (int i = 0; i < N * N * N_depth; i++)
+        for (int i = 0; i < _tileValues.Length; i++)
         {
-            _index += _tileValues[i] * power;
+            _index += _tileValues[_tileValues.Length - 1 - i] * power;
             power *= gameObjectsCount;
         }
 

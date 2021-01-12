@@ -14,7 +14,7 @@ class OverlappingModel : Model
     int N_depth;
     private Dictionary<long, Tile> tilesDictionary = new Dictionary<long, Tile>();
     public List<GameObject> gameObjects = new List<GameObject>();
-    int ae = 0;
+    private bool overlapTileCreation = true;
     public OverlappingModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, int N, int N_depth, bool tileProcessing, GameObject[][][] inputMap) : base(gridWidth, gridDepth, gridLength, tileSize, seamless)
     {
         W = inputMap.Length;        // x
@@ -57,16 +57,31 @@ class OverlappingModel : Model
                 for (int x = 0; x < W; x++)
                 {
                     Tile tile = CreateTile(x, y, z);
-                    CountWeights(tile);
+                    newTiles.Add(tile);
                 }
-        //newTiles = tilesDictionary.Values.ToList();
-        //Debug.Log("Tiles count: " + newTiles.Count);
-        if (tileProcessing)
-            ProcessTiles(); // creates rotations and reflections
-        //Debug.Log("ae: " + ae);
+
+        int maxProcessIndex = (tileProcessing) ? 8 : 1;
+        foreach (Tile tile in newTiles)
+        {
+            Tile[] tilesToProcess = new Tile[8];
+            tilesToProcess[0] = tile;
+            if (tileProcessing)
+            {
+                tilesToProcess[1] = RotateTile(tilesToProcess[0]);
+                tilesToProcess[2] = ReflectTile(tilesToProcess[0]);
+                tilesToProcess[3] = RotateTile(tilesToProcess[2]);
+                tilesToProcess[4] = ReflectTile(tilesToProcess[2]);
+                tilesToProcess[5] = RotateTile(tilesToProcess[4]);
+                tilesToProcess[6] = ReflectTile(tilesToProcess[4]);
+                tilesToProcess[7] = ReflectTile(tilesToProcess[6]);
+            }
+
+
+            for (int i = 0; i < maxProcessIndex; i++)
+                CountWeights(tilesToProcess[i]);
+        }
+
         newTiles = tilesDictionary.Values.ToList();
-        //newTiles.RemoveAt(newTiles.Count - 1);
-        //Debug.Log("Tiles count: " + newTiles.Count);
 
         for (int i = 0; i < newTiles.Count; i++)
         {
@@ -127,10 +142,33 @@ class OverlappingModel : Model
                 for (int x = 0; x < W; x++)
                 {
                     Tile tile = CreateTile(x, y, z);
-                    CountWeights(tile);
+                    newTiles.Add(tile);
+                    //CountWeights(tile);
                 }
-        if (tileProcessing)
-            ProcessTiles(); // creates rotations and reflections
+
+        int maxProcessIndex = (tileProcessing) ? 8 : 1;
+        foreach (Tile tile in newTiles)
+        {
+            Tile[] tilesToProcess = new Tile[8];
+            tilesToProcess[0] = tile;
+            if (tileProcessing)
+            {
+                tilesToProcess[1] = RotateTile(tilesToProcess[0]);
+                tilesToProcess[2] = ReflectTile(tilesToProcess[0]);
+                tilesToProcess[3] = RotateTile(tilesToProcess[2]);
+                tilesToProcess[4] = ReflectTile(tilesToProcess[2]);
+                tilesToProcess[5] = RotateTile(tilesToProcess[4]);
+                tilesToProcess[6] = ReflectTile(tilesToProcess[4]);
+                tilesToProcess[7] = ReflectTile(tilesToProcess[6]);
+            }
+
+
+            for (int i = 0; i < maxProcessIndex; i++)
+                CountWeights(tilesToProcess[i]);
+        }
+
+        /*if (tileProcessing)
+            ProcessTiles(); // creates rotations and reflections*/
         newTiles = tilesDictionary.Values.ToList();
 
         for (int i = 0; i < newTiles.Count; i++)
@@ -194,7 +232,7 @@ class OverlappingModel : Model
         }
     }
 
-    private void ProcessTiles()
+    /*private void ProcessTiles()
     {
         List<Tile> newTiles = new List<Tile>();
         foreach (KeyValuePair<long, Tile> entry in tilesDictionary)
@@ -216,9 +254,12 @@ class OverlappingModel : Model
             CountWeights(newTiles[i]);
         }
     }
-
+    */
     private Tile CreateTile(int x, int y, int z)
     {
+        if (!overlapTileCreation && ((x + N) >= W || (y + N_depth) >= D || (z + N) > L))
+            return null;
+
         byte[] map = new byte[N * N_depth * N];
 
         for (int i_z = 0; i_z < N; i_z++)
@@ -232,10 +273,7 @@ class OverlappingModel : Model
     private void CountWeights(Tile tile)
     {
         if (tilesDictionary.ContainsKey(tile._index))
-        {
             tilesDictionary[tile._index]._weight++;
-            ae++;
-        }
         else
         {
             tilesDictionary.Add(tile._index, tile);
