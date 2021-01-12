@@ -10,7 +10,7 @@ public class WFC_Generator : MonoBehaviour
         TiledModel tm = new TiledModel(5, 5, 5, 2, true, true, "3DKnots");
         tm.Solve();
 
-        OverlappingModel om = new OverlappingModel(5, 5, 5, 2, false, 3, 3, false, tm.output);
+        OverlappingModel om = new OverlappingModel(5, 5, 5, 2, false, 3, 3, false, tm.output, true);
         om.offset = new Vector3(20f, 0f, 0f);
         om.Solve();
 
@@ -28,16 +28,16 @@ public class WFC_Generator : MonoBehaviour
     }
 
     /// TODO: rest of constructor's arguments
-    public static void GenerateOverlapping(GameObject[][][] input, Vector3 offset, int tileSize, bool processTiles)
+    public static void GenerateOverlapping(Vector3Int dimensions, int tileSize, int N, int N_depth, bool processTiles, GameObject[][][] input, Vector3 offset, bool overlapTileCreation)
     {
-        OverlappingModel om = new OverlappingModel(100, 1, 100, tileSize, false, 3, 1, processTiles, input);
+        OverlappingModel om = new OverlappingModel(dimensions.x, dimensions.y, dimensions.z, tileSize, false, N, N_depth, processTiles, input, overlapTileCreation);
         om.offset = offset;
         om.Solve();
     }
 
-    public static void AutoFillTiled(Vector3Int dimensions, GameObject[][][] inputMap, int tileSize, string setName)
+    public static void AutoFillTiled(Vector3Int dimensions, int tileSize, bool seamless, bool processTiles, string setName, GameObject[][][] inputMap)
     {
-        TiledModel tm = new TiledModel(dimensions.x, dimensions.y, dimensions.z, tileSize, false, true, setName, inputMap);
+        TiledModel tm = new TiledModel(dimensions.x, dimensions.y, dimensions.z, tileSize, seamless, processTiles, setName, inputMap);
         tm.Solve();
     }
 

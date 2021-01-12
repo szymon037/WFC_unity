@@ -22,6 +22,9 @@ public class EditorInput : Editor
             editorBuilder.GenerateOverlapping();
         if (GUILayout.Button("Autofill Level"))
             editorBuilder.GenerateTiled();
+        if (GUILayout.Button("Advanced Settings"))
+            EditorBuilderWindow.Init(editorBuilder);
+
         GUILayout.EndHorizontal();
 
         if (editorBuilder.tiles == null || editorBuilder.tiles.Length == 0)

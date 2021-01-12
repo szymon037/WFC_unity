@@ -15,7 +15,7 @@ class OverlappingModel : Model
     private Dictionary<long, Tile> tilesDictionary = new Dictionary<long, Tile>();
     public List<GameObject> gameObjects = new List<GameObject>();
     private bool overlapTileCreation = true;
-    public OverlappingModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, int N, int N_depth, bool tileProcessing, GameObject[][][] inputMap) : base(gridWidth, gridDepth, gridLength, tileSize, seamless)
+    public OverlappingModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, int N, int N_depth, bool tileProcessing, GameObject[][][] inputMap, bool overlapTileCreation) : base(gridWidth, gridDepth, gridLength, tileSize, seamless)
     {
         W = inputMap.Length;        // x
         D = inputMap[0].Length;     // y   
@@ -23,6 +23,7 @@ class OverlappingModel : Model
         indexMap = new byte[W, D, L];
         this.N = N;
         this.N_depth = N_depth;
+        this.overlapTileCreation = overlapTileCreation;
 
         GameObject empty = new GameObject("Empty"); // TODO: make a prefab and load it at start? cuz this GO stays in scene
 
@@ -57,7 +58,8 @@ class OverlappingModel : Model
                 for (int x = 0; x < W; x++)
                 {
                     Tile tile = CreateTile(x, y, z);
-                    newTiles.Add(tile);
+                    if (tile != null)
+                        newTiles.Add(tile);
                 }
 
         int maxProcessIndex = (tileProcessing) ? 8 : 1;
@@ -142,7 +144,8 @@ class OverlappingModel : Model
                 for (int x = 0; x < W; x++)
                 {
                     Tile tile = CreateTile(x, y, z);
-                    newTiles.Add(tile);
+                    if (tile != null)
+                        newTiles.Add(tile);
                     //CountWeights(tile);
                 }
 

@@ -7,11 +7,9 @@ using UnityEngine;
 public class EditorBuilder : MonoBehaviour
 {
     public Vector3Int dimensions = Vector3Int.zero;
-    public int tileSize = 2;
     public GameObject[][][] outputMap;
     public Material transparentMat; ///TODO: load material from resources
     [HideInInspector] public GameObject currentTileGO;
-    //[HideInInspector] public GameObject[] gameObjects;
     [HideInInspector] public Tile[] tiles;
     public string tilesetName;
 
@@ -22,8 +20,19 @@ public class EditorBuilder : MonoBehaviour
     private GameObject highlightPlane = null;
     private GameObject highlightCurrentTileGO = null;
     private Vector3 invisiblePos = new Vector3(-999f, 0f, 0f);
-    //private Quaternion tileRotation = Quaternion.identity;
     private int currentTileIndex = 0;
+
+    /// WFC SETTINGS
+    public static bool seamless = false;
+    public static bool processTiles = true;
+    public static int tileSize = 2;
+    public static Vector3 offset;
+    // OVERLAPPING
+    public static int N = 3;
+    public static int N_depth = 2;
+    public static Vector3Int outputSize = new Vector3Int(10, 1, 10);
+    public static bool overlapTileCreation = true;
+
     public void Init()
     {
         foreach (Transform t in transform)
@@ -212,12 +221,12 @@ public class EditorBuilder : MonoBehaviour
 
     public void GenerateOverlapping()
     {
-        WFC_Generator.GenerateOverlapping(outputMap, new Vector3(20f, 0f, 0f), tileSize, true);
+        WFC_Generator.GenerateOverlapping(outputSize, tileSize, N, N_depth, processTiles, outputMap, offset, overlapTileCreation);
     }
 
     public void GenerateTiled() // based on user's input
     {
-        WFC_Generator.AutoFillTiled(dimensions, outputMap, tileSize, tilesetName);
+        WFC_Generator.AutoFillTiled(dimensions, tileSize, seamless, processTiles, tilesetName, outputMap);
     }
     public void LoadTiles()
     {
