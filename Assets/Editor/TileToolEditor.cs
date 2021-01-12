@@ -3,80 +3,74 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(EditorBuilder))]
-public class EditorInput : Editor
+[CustomEditor(typeof(TileToolManager))]
+
+public class TileToolEditor : Editor
 {
-    private EditorBuilder editorBuilder;
-    private Vector2 scrollPosition;
+    private TileToolManager tileToolManager;
+
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-        editorBuilder = (EditorBuilder)target;
+        tileToolManager = (TileToolManager)target;
+
+        if (GUILayout.Button("Open window"))
+            TileToolWindow.Init(tileToolManager);
 
         if (GUILayout.Button("Load tileset"))
-            editorBuilder.LoadTiles();
-        if (GUILayout.Button("Generate Grid/Reset"))
-            editorBuilder.Init();
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Generate Level"))
-            editorBuilder.GenerateOverlapping();
-        if (GUILayout.Button("Autofill Level"))
-            editorBuilder.GenerateTiled();
-        GUILayout.EndHorizontal();
+        {
+            tileToolManager.LoadTiles();
+            TileToolWindow.Init(tileToolManager);
+        }
 
-        if (editorBuilder.tiles == null || editorBuilder.tiles.Length == 0)
+        if (GUILayout.Button("Create Rules"))
+            tileToolManager.CreateRulesXML();
+
+        if (tileToolManager.tiles == null || tileToolManager.tiles.Length == 0)
             return;
 
         GUIStyle style = new GUIStyle(GUI.skin.button);
         //scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(200), GUILayout.Height(500));
-        for (int i = 0; i < Mathf.CeilToInt(editorBuilder.tiles.Length / 3f); i++)
+        for (int i = 0; i < Mathf.CeilToInt(tileToolManager.tiles.Length / 3f); i++)
         {
             GUILayout.BeginHorizontal();
             for (int j = 0; j < 3; j++)
             {
                 int index = i * 3 + j;
-                if (index >= editorBuilder.tiles.Length)
+                if (index >= tileToolManager.tiles.Length)
                     break;
-                
-                Texture t = AssetPreview.GetAssetPreview(editorBuilder.tiles[index]._tileGameObject);
-                GUIContent content = new GUIContent(editorBuilder.tiles[index]._tileGameObject.name, t);
+
+                Texture t = AssetPreview.GetAssetPreview(tileToolManager.tiles[index]._tileGameObject);
+                GUIContent content = new GUIContent(tileToolManager.tiles[index]._tileGameObject.name, t);
                 style.imagePosition = ImagePosition.ImageAbove;
                 if (GUILayout.Button(content, style, GetButtonOptions()))
                 {
-                    editorBuilder.OnTilePrefabChange(index);
+                    tileToolManager.OnTilePrefabChange(index);
+                    TileToolWindow.OnTilePrefabChange(index);
                 }
 
             }
             GUILayout.EndHorizontal();
         }
         //GUILayout.EndScrollView();
-        
     }
 
     protected virtual void OnSceneGUI()
     {
-        /*if (Selection.activeGameObject == editorBuilder.gameObject)
-            Tools.hidden = true;
-        else
-            Tools.hidden = false;*/
-
         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
         var e = Event.current;
-        if ((e.type == EventType.MouseDown || e.type == EventType.MouseMove) && e.type != EventType.MouseDrag)
+        if (e.type == EventType.MouseDown && e.type != EventType.MouseDrag)
         {
             Vector2 mousePos = e.mousePosition;
             var ray = HandleUtility.GUIPointToWorldRay(mousePos);
             RaycastHit rHit;
             bool hit = Physics.Raycast(ray, out rHit, Mathf.Infinity, LayerMask.GetMask("BuilderBox"));
-            if (e.type == EventType.MouseMove)
-                editorBuilder.HighlightPrefabsManagement(rHit);
             if (e.type == EventType.MouseDown && e.button == 0)
-                editorBuilder.CreateTile(rHit);
-            else if (e.type == EventType.MouseDown && e.button == 1)
-                editorBuilder.DestroyTile(rHit);
+            {
+                tileToolManager.ChooseFace(rHit);
+                TileToolWindow.OnFaceChange(rHit);
+            }
         }
-        else if (e.type == EventType.KeyUp && e.keyCode == KeyCode.A)
-            editorBuilder.RotateTile();
     }
 
     private GUILayoutOption[] GetButtonOptions()
@@ -90,5 +84,10 @@ public class EditorInput : Editor
         options[5] = GUILayout.MaxHeight(100f);
 
         return options;
+    }
+
+    private void SaveToXML()
+    {
+
     }
 }

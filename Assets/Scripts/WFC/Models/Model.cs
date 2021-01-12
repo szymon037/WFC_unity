@@ -59,7 +59,7 @@ public abstract class Model
             compatible[i] = new int[6];
             for (int j = 0; j < 6; j++)
             {
-                compatible[i][j] = tiles[i]._adjacencies[j].Length;
+                compatible[i][j] = tiles[i]._tileAdjacencies[j].Length;
             }
         }
 

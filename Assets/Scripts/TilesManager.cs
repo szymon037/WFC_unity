@@ -56,27 +56,41 @@ public static class TilesManager
                             {
                                 string name = reader.Value;
                                 tile._tileGameObject = LoadTileGameObject("Tiles\\" + setName + "\\" + name);
-                                tile._tileGameObjectName = tile._tileGameObject.name;
+                                tile._tileName = tile._tileGameObject.name;
                             }
 
                             if (reader.Name == "frequency")
                                 tile._weight = float.Parse(reader.Value);
 
                             if (reader.Name == "L")
-                                tileValues[0] = CalculateBitValue(reader.Value);
+                                tile._edgeAdjacencies[0] = ParseStringAdjacencies(reader.Value);
                             if (reader.Name == "R")
-                                tileValues[1] = CalculateBitValue(reader.Value);
+                                tile._edgeAdjacencies[1] = ParseStringAdjacencies(reader.Value);
                             if (reader.Name == "U")
-                                tileValues[2] = CalculateBitValue(reader.Value);
+                                tile._edgeAdjacencies[2] = ParseStringAdjacencies(reader.Value);
                             if (reader.Name == "D")
-                                tileValues[3] = CalculateBitValue(reader.Value);
+                                tile._edgeAdjacencies[3] = ParseStringAdjacencies(reader.Value);
                             if (reader.Name == "F")
-                                tileValues[4] = CalculateBitValue(reader.Value);
+                                tile._edgeAdjacencies[4] = ParseStringAdjacencies(reader.Value);
                             if (reader.Name == "B")
-                                tileValues[5] = CalculateBitValue(reader.Value);
+                                tile._edgeAdjacencies[5] = ParseStringAdjacencies(reader.Value);
+
+                            
+
+                            /*for (int i = 0; i < 6; i++)
+                            {
+                                if (tile._adjacencies[i] == null)
+                                {
+                                    continue;
+                                }
+                                for (int j = 0; j < tile._adjacencies[i].Length; j++)
+                                {
+                                    Debug.Log(tile._adjacencies[i][j]);
+                                }
+                            }*/
 
                         }
-                        tile._tileValues = tileValues;
+                        tile.CalculateBitValue();
                         tilesList.Add(tile);
                     }
 
@@ -89,15 +103,15 @@ public static class TilesManager
         return true;
     }
 
-    private static byte CalculateBitValue(string value)
+    private static int[] ParseStringAdjacencies(string value)
     {
-        string[] neigbours = value.Split(';');
-        int bitValue = 0;
-        for (int i = 0; i < neigbours.Length; i++)
-        {
-            bitValue |= 1 << int.Parse(neigbours[i]);
-        }
-        return (byte)bitValue;
+        string[] neighbours = value.Split(';');
+        int[] adjacencies = new int[neighbours.Length];
+
+        for (int i = 0; i < neighbours.Length; i++)
+            adjacencies[i] = int.Parse(neighbours[i]);
+
+        return adjacencies;
     }
 
     private static GameObject LoadTileGameObject(string path)
@@ -148,7 +162,7 @@ public static class TilesManager
         tileValues[3] = tile._tileValues[3];
         tileValues[4] = tile._tileValues[0];
         tileValues[5] = tile._tileValues[1];
-        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileGameObjectName, rotationY + 90f, 1f);
+        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileName, rotationY + 90f, 1f);
     }
 
     public static Tile ReflectTile(Tile tile)
@@ -175,7 +189,7 @@ public static class TilesManager
         tileValues[4] = tile._tileValues[4];
         tileValues[5] = tile._tileValues[5];
 
-        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileGameObjectName, rotationY, -1f);
+        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileName, rotationY, -1f);
     }
     private static void CreateAdjacencies()
     {
@@ -190,7 +204,7 @@ public static class TilesManager
                     if ((tilesTiled[i]._tileValues[d] & tilesTiled[j]._tileValues[Model.opposite[d]]) > 0)
                         l.Add(j);
                 }
-                tilesTiled[i]._adjacencies[d] = l.ToArray();
+                tilesTiled[i]._tileAdjacencies[d] = l.ToArray();
             }
         }
     }

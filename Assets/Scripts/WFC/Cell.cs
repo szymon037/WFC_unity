@@ -53,7 +53,7 @@ public class Cell
             _compatible[i] = new int[6];
             for (int j = 0; j < 6; j++)
             {
-                _compatible[i][j] = Model.tiles[i]._adjacencies[j].Length;
+                _compatible[i][j] = Model.tiles[i]._tileAdjacencies[j].Length;
             }
         }
         ChooseTile(tileIndex);
@@ -109,7 +109,7 @@ public class Cell
 
     public void UpdatePossibilities(int tileIndex, int dir)
     {
-        int[] n = Model.tiles[tileIndex]._adjacencies[dir];
+        int[] n = Model.tiles[tileIndex]._tileAdjacencies[dir];
         for (int i = 0; i < n.Length; i++)
         {
             _compatible[n[i]][Model.opposite[dir]]--;

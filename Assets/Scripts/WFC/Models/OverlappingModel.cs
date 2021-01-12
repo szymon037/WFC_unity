@@ -78,7 +78,7 @@ class OverlappingModel : Model
                     if (CheckAdjacencies(newTiles[i], newTiles[j], d))
                         l.Add(j);
                 }
-                newTiles[i]._adjacencies[d] = l.ToArray();
+                newTiles[i]._tileAdjacencies[d] = l.ToArray();
             }
         }
 
@@ -143,7 +143,7 @@ class OverlappingModel : Model
                     if (CheckAdjacencies(newTiles[i], newTiles[j], d))
                         l.Add(j);
                 }
-                newTiles[i]._adjacencies[d] = l.ToArray();
+                newTiles[i]._tileAdjacencies[d] = l.ToArray();
             }
         }
 

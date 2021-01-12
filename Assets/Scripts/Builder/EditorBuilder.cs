@@ -26,15 +26,8 @@ public class EditorBuilder : MonoBehaviour
     private int currentTileIndex = 0;
     public void Init()
     {
-        // load tiles from file
-        // if no .xml file, load tiles without adjacencies
-        // COPY tiles
-        // instead of choosing gameobject, choose tile
-        
-
         foreach (Transform t in transform)
             DestroyImmediate(t.gameObject);
-        //tileRotation = Quaternion.identity;
         // Start objects check
         if (collidersParent == null)
         {
@@ -75,7 +68,7 @@ public class EditorBuilder : MonoBehaviour
         if (highlightCube == null)
         {
             highlightCube = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\HighlightCube"), invisiblePos, Quaternion.identity, transform);
-            highlightCube.transform.localScale *= tileSize;
+            highlightCube.transform.localScale *= (tileSize + 0.05f);
         }
         if (highlightPlane == null)
         {
@@ -128,10 +121,9 @@ public class EditorBuilder : MonoBehaviour
 
         Vector3 gridPos = rHit.transform.position;
         highlightCube.transform.position = gridPos;
-        highlightPlane.transform.position = gridPos + rHit.normal * tileSize * 0.5f;
+        highlightPlane.transform.position = gridPos + rHit.normal * tileSize * 0.51f;
         highlightPlane.transform.LookAt(highlightPlane.transform.position + rHit.normal);
         // Tile prefab highlight
-        /// TODO: APPLY ROTATION
         Vector3 pos = rHit.transform.position;
         Vector3 normal = rHit.normal;
 
@@ -216,8 +208,6 @@ public class EditorBuilder : MonoBehaviour
 
         tiles[currentTileIndex] = rotationTile;
         highlightCurrentTileGO.transform.rotation = tiles[currentTileIndex]._transform.rotation;
-        //tileRotation *= Quaternion.Euler(Vector3.up * 90f);
-        //highlightCurrentTileGO.transform.rotation = tileRotation;
     }
 
     public void GenerateOverlapping()
