@@ -70,6 +70,11 @@ public class Tile
     public Tile(GameObject tileGameObject)
     {
         _tileGameObject = tileGameObject;
+        _tileName = tileGameObject.name;
+        _weight = 1;
+
+        for (int i = 0; i < 6; i++)
+            _edgeAdjacencies[i] = new int[0];
     }
 
     public string GetName()
@@ -96,20 +101,24 @@ public class Tile
     {
         string[] adj = new string[6];
 
-        // split test: 1;
-
         for (int i = 0; i < 6; i++)
+        {
+            adj[i] = string.Empty;
+            if (_edgeAdjacencies[i].Length == 0)
+                return null;
+
             for (int j = 0; j < _edgeAdjacencies[i].Length; j++)
             {
                 adj[i] += _edgeAdjacencies[i][j].ToString();
                 if (j < _edgeAdjacencies[i].Length - 1)
                     adj[i] += ';';
             }
+        }
 
         XElement tile = new XElement("tile", new XAttribute("name", _tileName), new XAttribute("frequency", _weight),
             new XAttribute("L", adj[0]), new XAttribute("R", adj[1]), new XAttribute("U", adj[2]),
             new XAttribute("D", adj[3]), new XAttribute("F", adj[4]), new XAttribute("B", adj[5]));
-
+        
         return tile;
     }
 }

@@ -69,6 +69,8 @@ public class TileToolEditor : Editor
             {
                 tileToolManager.ChooseFace(rHit);
                 TileToolWindow.OnFaceChange(rHit);
+                SceneView.RepaintAll();
+
             }
         }
     }

@@ -7,7 +7,7 @@ using System.Text;
 
 class TiledModel : Model
 {
-    public TiledModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, bool processTiles, string setName = null, GameObject[][][] inputMap = null, GameObject parent = null) : base(gridWidth, gridDepth, gridLength, tileSize, seamless, parent)
+    public TiledModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, bool processTiles, string setName = null, GameObject[][][] inputMap = null, Transform parent = null) : base(gridWidth, gridDepth, gridLength, tileSize, seamless, parent)
     {
         this.tileSize = tileSize;
         if (setName != null)
@@ -32,7 +32,7 @@ class TiledModel : Model
     }
 
     // infinite chunk generation
-    public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool processTiles, string setName, int[][] neighbourCells, GameObject parent) : base(gridWidth, gridLength, gridDepth, tileSize, false, parent)
+    public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool processTiles, string setName, int[][] neighbourCells, Transform parent) : base(gridWidth, gridLength, gridDepth, tileSize, false, parent)
     {
         chunkGeneration = true;
         /// TODO: process tiles in infinity mode only once
@@ -98,7 +98,7 @@ class TiledModel : Model
     public override void GenerateOutput()
     {
         if (parent == null)
-            parent = new GameObject("WFC_output_tiled");
+            parent = new GameObject("WFC_output_tiled").transform;
 
         for (int z = 0; z < gridLength; z++)
             for (int y = 0; y < gridDepth; y++)
@@ -135,8 +135,6 @@ class TiledModel : Model
                     for (int i = 0; i < tiles.Length; i++)
                         if (inputMap[x][y][z] != null && inputMap[x][y][z].name == tiles[i].GetName())
                         {
-                            Debug.Log("found name: " + tiles[i].GetName());
-
                             int index = ID(x, y, z);
                             grid[index].ChooseTile(i);
                         }

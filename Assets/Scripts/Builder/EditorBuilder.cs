@@ -12,7 +12,6 @@ public class EditorBuilder : MonoBehaviour
     [HideInInspector] public GameObject currentTileGO;
     [HideInInspector] public Tile[] tiles;
     public string tilesetName;
-
     private GameObject collidersParent = null;
     private GameObject tilesParent = null;
     private GameObject plane = null;
@@ -21,22 +20,23 @@ public class EditorBuilder : MonoBehaviour
     private GameObject highlightCurrentTileGO = null;
     private Vector3 invisiblePos = new Vector3(-999f, 0f, 0f);
     private int currentTileIndex = 0;
+    public Transform WFC_output;
 
     /// WFC SETTINGS
-    public static bool seamless = false;
-    public static bool processTiles = true;
-    public static int tileSize = 2;
-    public static Vector3 offset;
+    [HideInInspector] public bool seamless = false;
+    [HideInInspector] public bool processTiles = true;
+    [HideInInspector] public int tileSize = 4;
+    [HideInInspector] public Vector3 offset;
     // OVERLAPPING
-    public static int N = 3;
-    public static int N_depth = 2;
-    public static Vector3Int outputSize = new Vector3Int(10, 1, 10);
-    public static bool overlapTileCreation = true;
-
+    [HideInInspector] public int N = 3;
+    [HideInInspector] public int N_depth = 2;
+    [HideInInspector] public Vector3Int outputSize = new Vector3Int(10, 1, 10);
+    [HideInInspector] public bool overlapTileCreation = true;
     public void Init()
     {
-        foreach (Transform t in transform)
-            DestroyImmediate(t.gameObject);
+        while (transform.childCount > 0)
+            DestroyImmediate(transform.GetChild(0).gameObject);
+
         // Start objects check
         if (collidersParent == null)
         {
@@ -84,11 +84,12 @@ public class EditorBuilder : MonoBehaviour
             highlightPlane = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\HighlightPlane"), invisiblePos, Quaternion.identity, transform);
             highlightPlane.transform.localScale *= tileSize;
         }
-        if (highlightCurrentTileGO == null && currentTileGO != null)
+        if (highlightCurrentTileGO == null && currentTileGO != null && tiles != null)
         {
             highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._transform.rotation, transform);
-            foreach (Transform child in highlightCurrentTileGO.transform)
-                child.GetComponent<Renderer>().material = transparentMat;
+            /*foreach (Transform child in highlightCurrentTileGO.transform)
+                if (child.GetComponent<Renderer>() != null)
+                    child.GetComponent<Renderer>().material = transparentMat;*/
         }
 
 
@@ -124,7 +125,8 @@ public class EditorBuilder : MonoBehaviour
         {
             highlightCube.transform.position = invisiblePos;
             highlightPlane.transform.position = invisiblePos;
-            highlightCurrentTileGO.transform.position = invisiblePos;
+            if (highlightCurrentTileGO != null)
+                highlightCurrentTileGO.transform.position = invisiblePos;
             return;
         }
 
@@ -139,9 +141,11 @@ public class EditorBuilder : MonoBehaviour
         Vector3 spawnPos = pos + normal * tileSize;
         Vector3 id = spawnPos / tileSize;
 
+        if (highlightCurrentTileGO == null)
+            return;
+
         if (id.x < 0 || id.y < 0 || id.z < 0 ||
-            id.x >= dimensions.x || id.y >= dimensions.y || id.z >= dimensions.z || 
-            highlightCurrentTileGO == null)
+            id.x >= dimensions.x || id.y >= dimensions.y || id.z >= dimensions.z)
         {
             highlightCurrentTileGO.transform.position = invisiblePos;
             return;
@@ -152,7 +156,7 @@ public class EditorBuilder : MonoBehaviour
 
     public void CreateTile(RaycastHit rHit)
     {
-        if (rHit.transform == null || currentTileGO == null)
+        if (rHit.transform == null || currentTileGO == null || tiles == null)
             return;
 
         Vector3 pos = rHit.transform.position;
@@ -200,14 +204,20 @@ public class EditorBuilder : MonoBehaviour
             DestroyImmediate(highlightCurrentTileGO);
         highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._transform.rotation, transform);
 
-        foreach (Transform child in highlightCurrentTileGO.transform)
-            child.GetComponent<Renderer>().material = transparentMat;
+        /*foreach (Transform child in highlightCurrentTileGO.transform)
+        {
+            if (child.GetComponent<Renderer>() != null)
+                child.GetComponent<Renderer>().material = transparentMat;
+        }*/
 
     }
 
 
     public void RotateTile()
     {
+        if (tiles == null || highlightCurrentTileGO == null)
+            return;
+
         Tile rotationTile = TilesManager.RotateTile(tiles[currentTileIndex]);
         if (rotationTile == null)
         {
@@ -221,7 +231,17 @@ public class EditorBuilder : MonoBehaviour
 
     public void GenerateOverlapping()
     {
-        WFC_Generator.GenerateOverlapping(outputSize, tileSize, N, N_depth, processTiles, outputMap, offset, overlapTileCreation);
+        if (WFC_output != null)
+            DestroyImmediate(WFC_output.gameObject);
+
+        if (outputSize.x < outputMap.Length || outputSize.y < outputMap[0].Length || outputSize.z < outputMap[0][0].Length)
+        {
+            Debug.Log("Output size is smaller than input! Modyfing output size.");
+            outputSize = new Vector3Int(Math.Max(outputSize.x, outputMap.Length), Math.Max(outputSize.y, outputMap[0].Length), Math.Max(outputSize.z, outputMap[0][0].Length));
+        }
+
+        WFC_Generator.GenerateOverlapping(outputSize, tileSize, N, N_depth, processTiles, outputMap, offset, overlapTileCreation, transform);
+        WFC_output = WFC_Generator.outputTransform;
     }
 
     public void GenerateTiled() // based on user's input

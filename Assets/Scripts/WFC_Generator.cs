@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class WFC_Generator : MonoBehaviour
 {
+    public static Transform outputTransform;
     void Start()
     {
         TiledModel tm = new TiledModel(5, 5, 5, 2, true, true, "3DKnots");
@@ -28,11 +29,12 @@ public class WFC_Generator : MonoBehaviour
     }
 
     /// TODO: rest of constructor's arguments
-    public static void GenerateOverlapping(Vector3Int dimensions, int tileSize, int N, int N_depth, bool processTiles, GameObject[][][] input, Vector3 offset, bool overlapTileCreation)
+    public static void GenerateOverlapping(Vector3Int dimensions, int tileSize, int N, int N_depth, bool processTiles, GameObject[][][] input, Vector3 offset, bool overlapTileCreation, Transform parent)
     {
-        OverlappingModel om = new OverlappingModel(dimensions.x, dimensions.y, dimensions.z, tileSize, false, N, N_depth, processTiles, input, overlapTileCreation);
+        OverlappingModel om = new OverlappingModel(dimensions.x, dimensions.y, dimensions.z, tileSize, false, N, N_depth, processTiles, input, overlapTileCreation, parent);
         om.offset = offset;
         om.Solve();
+        outputTransform = om.outputTransform;
     }
 
     public static void AutoFillTiled(Vector3Int dimensions, int tileSize, bool seamless, bool processTiles, string setName, GameObject[][][] inputMap)

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<set>
+  <tiles tileSize="2">
+    <tile name="Corner" frequency="1" L="0" R="1" U="" D="" F="1" B="0" />
+    <tile name="Empty" frequency="1" L="0" R="0" U="" D="" F="0" B="0" />
+    <tile name="Line" frequency="1" L="1" R="1" U="" D="" F="0" B="0" />
+  </tiles>
+</set>

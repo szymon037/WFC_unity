@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml;
 using System.Text;
 using System.IO;
+using System;
 
 public static class TilesManager 
 {
@@ -74,21 +75,6 @@ public static class TilesManager
                                 tile._edgeAdjacencies[4] = ParseStringAdjacencies(reader.Value);
                             if (reader.Name == "B")
                                 tile._edgeAdjacencies[5] = ParseStringAdjacencies(reader.Value);
-
-                            
-
-                            /*for (int i = 0; i < 6; i++)
-                            {
-                                if (tile._adjacencies[i] == null)
-                                {
-                                    continue;
-                                }
-                                for (int j = 0; j < tile._adjacencies[i].Length; j++)
-                                {
-                                    Debug.Log(tile._adjacencies[i][j]);
-                                }
-                            }*/
-
                         }
                         tile.CalculateBitValue();
                         tilesList.Add(tile);
@@ -109,7 +95,17 @@ public static class TilesManager
         int[] adjacencies = new int[neighbours.Length];
 
         for (int i = 0; i < neighbours.Length; i++)
-            adjacencies[i] = int.Parse(neighbours[i]);
+        {
+            try
+            {
+                adjacencies[i] = int.Parse(neighbours[i]);
+            }
+            catch (FormatException e)
+            {
+                adjacencies = new int[0];
+                break;
+            }
+        }
 
         return adjacencies;
     }

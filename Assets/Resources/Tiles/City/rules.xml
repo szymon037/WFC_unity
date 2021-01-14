@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<set>
+  <tiles tileSize="4">
+    <tile name="bridge" frequency="1" L="2" R="2" U="0" D="0" F="3" B="3" />
+    <tile name="building_ground" frequency="1" L="1;5" R="1;5" U="4" D="0" F="1;5" B="1;5" />
+    <tile name="building_I" frequency="1" L="0;6" R="0;6" U="7" D="4;7" F="0;6" B="0;6" />
+    <tile name="empty" frequency="1" L="0" R="0" U="0" D="0" F="0" B="0" />
+    <tile name="grass" frequency="1" L="1" R="1" U="0" D="0" F="1" B="1" />
+    <tile name="river_corner" frequency="1" L="1" R="3" U="0" D="0" F="1" B="3" />
+    <tile name="river_line" frequency="1" L="3" R="3" U="0" D="0" F="1" B="1" />
+    <tile name="road_corner" frequency="1" L="1" R="2" U="0" D="0" F="1" B="2" />
+    <tile name="road_cross" frequency="1" L="2" R="2" U="0" D="0" F="2" B="2" />
+    <tile name="road_line" frequency="1" L="2" R="2" U="0" D="0" F="1" B="1" />
+    <tile name="road_T" frequency="1" L="2" R="2" U="0" D="0" F="1" B="2" />
+    <tile name="roof" frequency="1" L="0" R="0" U="0" D="7" F="0" B="0" />
+  </tiles>
+</set>

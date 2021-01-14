@@ -11,7 +11,7 @@ public class TileToolWindow : EditorWindow
     private static int tileIndex = -1;
     private static string faceName = "None";
     private static string faceIndices = "None";
-    private static int dirIndex;
+    private static int faceIndex;
     // L - 0, R - 1, U - 2, D - 3, F - 4, B - 5
     private static Dictionary<Vector3, int> directionsToIndexDictionary = new Dictionary<Vector3, int>{
         { Vector3.left, 0 }, { Vector3.right, 1 }, { Vector3.up, 2 }, { Vector3.down, 3}, { Vector3.forward, 4 }, { Vector3.back, 5 } };
@@ -23,8 +23,6 @@ public class TileToolWindow : EditorWindow
     private static float weight;
     int maxIndicesNr = 12;
     int indicesInRow = 4;
-    int indexSelection;
-
 
     [MenuItem("Window/Tile Tool Window")]
     public static void Init(TileToolManager tileTool)
@@ -37,13 +35,13 @@ public class TileToolWindow : EditorWindow
 
     void OnGUI()
     {
-        string tileName = (tileToolManager != null && tileIndex > 0 && tileIndex < tileToolManager.tiles.Length) ? tileToolManager.tiles[tileIndex]._tileGameObject.name : "None";
+        string tileName = (tileToolManager != null && tileToolManager.tiles != null && tileIndex > -1 && tileIndex < tileToolManager.tiles.Length) ? tileToolManager.tiles[tileIndex]._tileGameObject.name : "None";
         EditorGUILayout.LabelField("Prefab name: ", tileName);
         EditorGUILayout.LabelField("Face selected: ", faceName);
         EditorGUILayout.LabelField("Current face indices: ", faceIndices);
         weight = Mathf.Max(0f, EditorGUILayout.FloatField("Weight", weight));
-        indexSelection = GUILayout.Toolbar(indexSelection, new string[] { "Add", "Remove" });
 
+        //indexSelection = GUILayout.Toolbar(indexSelection, new string[] { "Add", "Remove" });
 
         for (int y = 0; y < Mathf.Ceil((float)maxIndicesNr / indicesInRow); y++)
         {
@@ -54,16 +52,16 @@ public class TileToolWindow : EditorWindow
                 if (buttonIndex >= maxIndicesNr)
                     break;
 
-                if (GUILayout.Button(buttonIndex.ToString()))
+                if (GUILayout.Button(buttonIndex.ToString(), GetButtonOptions()))
                 {
-                    if (indexSelection == 0 && !edgeAdjacencies[dirIndex].Exists(i => i == buttonIndex))
+                    if (!edgeAdjacencies[faceIndex].Exists(i => i == buttonIndex))
                     {
-                        edgeAdjacencies[dirIndex].Add(buttonIndex);
+                        edgeAdjacencies[faceIndex].Add(buttonIndex);
                         UpdateFaceIndices();
                     }
-                    else if (indexSelection == 1)
+                    else
                     {
-                        edgeAdjacencies[dirIndex].Remove(buttonIndex);
+                        edgeAdjacencies[faceIndex].Remove(buttonIndex);
                         UpdateFaceIndices();
                     }
 
@@ -84,7 +82,7 @@ public class TileToolWindow : EditorWindow
         if (GUILayout.Button("Save tile changes"))
             SaveTileChanges();
 
-
+        
 
 
     }
@@ -94,8 +92,20 @@ public class TileToolWindow : EditorWindow
         tileIndex = index;
         weight = tileToolManager.tiles[tileIndex]._weight;
         for (int i = 0; i < 6; i++)
+        {
             edgeAdjacencies[i] = new List<int>(tileToolManager.tiles[tileIndex]._edgeAdjacencies[i]);
-        dirIndex = -1;
+        }
+
+        for (int i = 0; i < 6; i++)
+        {
+            if (TileToolManager.textFields[i] == null)
+                TileToolManager.textFields[i].text = string.Empty;
+            else
+                TileToolManager.textFields[i].text = GetFaceIndices(i);
+
+        }
+
+        faceIndex = 0;
         UpdateFaceIndices();
         window.Repaint();
     }
@@ -106,18 +116,16 @@ public class TileToolWindow : EditorWindow
             return;
         faceName = directionToNameDictionary[rHit.normal];
 
-        dirIndex = directionsToIndexDictionary[rHit.normal];
+        faceIndex = directionsToIndexDictionary[rHit.normal];
         UpdateFaceIndices();
 
     }
 
     private static void UpdateFaceIndices()
     {
-        faceIndices = "";
-
-        for (int i = 0; dirIndex > 0 && i < edgeAdjacencies[dirIndex].Count; i++)
-            faceIndices += edgeAdjacencies[dirIndex][i].ToString() + " ";
-
+        faceIndices = GetFaceIndices(faceIndex);
+        TileToolManager.textFields[faceIndex].text = faceIndices;
+        EditorApplication.QueuePlayerLoopUpdate();
         window.Repaint();
     }
 
@@ -128,6 +136,29 @@ public class TileToolWindow : EditorWindow
             tileToolManager.tiles[tileIndex]._edgeAdjacencies[i] = edgeAdjacencies[i].ToArray();
     }
 
-    
+    private GUILayoutOption[] GetButtonOptions()
+    {
+        GUILayoutOption[] options = new GUILayoutOption[6];
+        options[0] = GUILayout.Width(25f);
+        options[1] = GUILayout.Height(25f);
+        options[2] = GUILayout.MinWidth(5f);
+        options[3] = GUILayout.MaxWidth(100f);
+        options[4] = GUILayout.MinHeight(5f);
+        options[5] = GUILayout.MaxHeight(25f);
 
+        return options;
+    }
+
+    private static string GetFaceIndices(int index)
+    {
+        if (edgeAdjacencies[index] == null)
+            return string.Empty;
+
+        string indices = string.Empty;
+
+        for (int i = 0; i < edgeAdjacencies[index].Count; i++)
+            indices += edgeAdjacencies[index][i].ToString() + " ";
+
+        return indices;
+    }
 }

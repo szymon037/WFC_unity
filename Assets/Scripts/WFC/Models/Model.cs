@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+// L - 0, R - 1, U - 2, D - 3, F - 4, B - 5
 
 public abstract class Model
 {
@@ -18,12 +19,13 @@ public abstract class Model
     public bool seamless;
     public int[,] dir = new int[6, 3] { { -1, 0, 0 }, { 1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1}, { 0, 0, -1 } }; // L R U D F B
     public Vector3 offset = Vector3.zero;
-    protected GameObject parent;
+    protected Transform parent;
     protected bool chunkGeneration = false;
+    public Transform outputTransform;
     ///TODO: clearing whole model on solve (so creating new Model is not needed)
     ///TODO: extrnal tile creator and processor - needed in infinity generator
 
-    public Model(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, GameObject parent = null)
+    public Model(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, Transform parent = null)
     {
         this.gridWidth = gridWidth;
         this.gridLength = gridLength;
