@@ -97,33 +97,29 @@ class TiledModel : Model
     
     public override void GenerateOutput()
     {
-        if (parent == null)
-            parent = new GameObject("WFC_output_tiled").transform;
+        outputTransform = new GameObject("WFC_output_tiled").transform;
+        if (parent != null)
+            outputTransform.parent = parent;
 
         for (int z = 0; z < gridLength; z++)
             for (int y = 0; y < gridDepth; y++)
                 for (int x = 0; x < gridWidth; x++)
                 {
-                    //if (ID(x, y, z) == 0)
-                        //Debug.Log("name: " + grid[ID(x, y, z)]._tile._tileGameObject.name);
                     GameObject go = null;
                     if (chunkGeneration)
                     {
-                        go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, Vector3.zero, grid[ID(x, y, z)]._tile._transform.rotation, parent.transform);
-                        go.transform.localScale = grid[ID(x, y, z)]._tile._transform.lossyScale;
+                        go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, Vector3.zero, grid[ID(x, y, z)]._tile._rotation, outputTransform);
+                        go.transform.localScale = grid[ID(x, y, z)]._tile._scale;
                         go.transform.localPosition = new Vector3(x, y, z) * tileSize;
                         go.name = grid[ID(x, y, z)]._tile.GetName();
                     }
                     else
                     {
-                        //if (grid[ID(x, y, z)]._tile._tileGameObject == null)
-                            //Debug.Log("NULL: " + ID(x, y, z));
-                        go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, new Vector3(x, y, z) * tileSize + offset, grid[ID(x, y, z)]._tile._transform.rotation, parent.transform);
-                        go.transform.localScale = grid[ID(x, y, z)]._tile._transform.lossyScale;
+                        go = Object.Instantiate(grid[ID(x, y, z)]._tile._tileGameObject, new Vector3(x, y, z) * tileSize + offset, grid[ID(x, y, z)]._tile._rotation, outputTransform);
+                        go.transform.localScale = grid[ID(x, y, z)]._tile._scale;
                         go.name = grid[ID(x, y, z)]._tile.GetName();
                     }
                     output[x][y][z] = go;
-                    //Object.Destroy(go);
                 }
     }
 

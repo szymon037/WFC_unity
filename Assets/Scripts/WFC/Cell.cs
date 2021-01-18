@@ -109,9 +109,15 @@ public class Cell
 
     public void UpdatePossibilities(int tileIndex, int dir)
     {
+        if (tileIndex == -1)
+            return;
+
         int[] n = Model.tiles[tileIndex]._tileAdjacencies[dir];
         for (int i = 0; i < n.Length; i++)
         {
+            if (n[i] == -1)
+                continue;
+
             _compatible[n[i]][Model.opposite[dir]]--;
             if (_compatible[n[i]][Model.opposite[dir]] == 0)
                 RemoveTile(n[i]);

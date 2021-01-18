@@ -22,6 +22,7 @@ public abstract class Model
     protected Transform parent;
     protected bool chunkGeneration = false;
     public Transform outputTransform;
+    public static int groundIndex = -1;
     ///TODO: clearing whole model on solve (so creating new Model is not needed)
     ///TODO: extrnal tile creator and processor - needed in infinity generator
 

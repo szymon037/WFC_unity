@@ -7,7 +7,9 @@ using UnityEngine;
 public class EditorBuilder : MonoBehaviour
 {
     public Vector3Int dimensions = Vector3Int.zero;
-    public GameObject[][][] outputMap;
+    //public GameObject[][][] outputMap;
+    //public int[][][] outputMap;
+    public Tile[][][] outputMap;
     public Material transparentMat; ///TODO: load material from resources
     [HideInInspector] public GameObject currentTileGO;
     [HideInInspector] public Tile[] tiles;
@@ -20,6 +22,7 @@ public class EditorBuilder : MonoBehaviour
     private GameObject highlightCurrentTileGO = null;
     private Vector3 invisiblePos = new Vector3(-999f, 0f, 0f);
     private int currentTileIndex = 0;
+    //private Tile currentTile
     public Transform WFC_output;
 
     /// WFC SETTINGS
@@ -86,7 +89,7 @@ public class EditorBuilder : MonoBehaviour
         }
         if (highlightCurrentTileGO == null && currentTileGO != null && tiles != null)
         {
-            highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._transform.rotation, transform);
+            highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._rotation, transform);
             /*foreach (Transform child in highlightCurrentTileGO.transform)
                 if (child.GetComponent<Renderer>() != null)
                     child.GetComponent<Renderer>().material = transparentMat;*/
@@ -105,13 +108,16 @@ public class EditorBuilder : MonoBehaviour
         }
 
         // Output map init
-        outputMap = new GameObject[dimensions.x][][];
+        outputMap = new Tile[dimensions.x][][];
         for (int x = 0; x < dimensions.x; x++)
         {
-            outputMap[x] = new GameObject[dimensions.y][];
+            outputMap[x] = new Tile[dimensions.y][];
             for (int y = 0; y < dimensions.y; y++)
             {
-                outputMap[x][y] = new GameObject[dimensions.z];
+                outputMap[x][y] = new Tile[dimensions.z];
+
+                /*for (int z = 0; z < dimensions.z; z++)
+                    outputMap[x][y][z] = null;*/
             }
         }
 
@@ -163,34 +169,36 @@ public class EditorBuilder : MonoBehaviour
         Vector3 normal = rHit.normal;
 
         Vector3 spawnPos = pos + normal * tileSize;
-        Vector3 id = spawnPos / tileSize;
+        Vector3 idFloat = spawnPos / tileSize;
+        Vector3Int id = new Vector3Int(Mathf.RoundToInt(idFloat.x), Mathf.RoundToInt(idFloat.y), Mathf.RoundToInt(idFloat.z));
 
         if (id.x < 0 || id.y < 0 || id.z < 0 ||
             id.x >= dimensions.x || id.y >= dimensions.y || id.z >= dimensions.z)
             return;
 
-        GameObject tile = Instantiate(currentTileGO, spawnPos, tiles[currentTileIndex]._transform.rotation, tilesParent.transform);
-        tile.name = currentTileGO.name + tile.transform.rotation.eulerAngles.ToString() + " " + tile.transform.localScale.ToString();
         GameObject collider = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\colliderPrefab"), spawnPos, Quaternion.identity, collidersParent.transform);
         collider.transform.localScale *= tileSize;
-
-        outputMap[(int)id.x][(int)id.y][(int)id.z] = tile;
+        //GameObject tile = Instantiate(currentTileGO, spawnPos, tiles[currentTileIndex]._transform.rotation, tilesParent.transform);
+        GameObject tile = Instantiate(currentTileGO, spawnPos, tiles[currentTileIndex]._rotation, tilesParent.transform);
+        tile.name = currentTileGO.name + tile.transform.rotation.eulerAngles.ToString() + " " + tile.transform.localScale.ToString();
+        //outputMap[(int)id.x][(int)id.y][(int)id.z] = tile;
+        outputMap[id.x][id.y][id.z] = tiles[currentTileIndex];
     }
 
+    // TODO: FIX DestroyTile
     public void DestroyTile(RaycastHit rHit)
     {
         if (rHit.transform == null || outputMap == null || rHit.transform.position.y < 0f)
             return;
-
         Vector3 pos = rHit.transform.position;
         Vector3 id = pos / tileSize;
 
         if (outputMap[(int)id.x][(int)id.y][(int)id.z] == null)
             return;
         
-        DestroyImmediate(outputMap[(int)id.x][(int)id.y][(int)id.z]);
+        outputMap[(int)id.x][(int)id.y][(int)id.z] = null;    // empty
         DestroyImmediate(rHit.transform.gameObject);
-        outputMap[(int)id.x][(int)id.y][(int)id.z] = null;
+        //outputMap[(int)id.x][(int)id.y][(int)id.z] = null;
     }
 
     public void OnTilePrefabChange(int index)
@@ -202,7 +210,7 @@ public class EditorBuilder : MonoBehaviour
         currentTileGO = tiles[currentTileIndex]._tileGameObject;
         if (highlightCurrentTileGO != null)
             DestroyImmediate(highlightCurrentTileGO);
-        highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._transform.rotation, transform);
+        highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._rotation, transform);
 
         /*foreach (Transform child in highlightCurrentTileGO.transform)
         {
@@ -226,11 +234,14 @@ public class EditorBuilder : MonoBehaviour
         }
 
         tiles[currentTileIndex] = rotationTile;
-        highlightCurrentTileGO.transform.rotation = tiles[currentTileIndex]._transform.rotation;
+        highlightCurrentTileGO.transform.rotation = tiles[currentTileIndex]._rotation;
     }
 
     public void GenerateOverlapping()
     {
+        if (IsOutputEmpty())
+            return;
+        
         if (WFC_output != null)
             DestroyImmediate(WFC_output.gameObject);
 
@@ -239,14 +250,20 @@ public class EditorBuilder : MonoBehaviour
             Debug.Log("Output size is smaller than input! Modyfing output size.");
             outputSize = new Vector3Int(Math.Max(outputSize.x, outputMap.Length), Math.Max(outputSize.y, outputMap[0].Length), Math.Max(outputSize.z, outputMap[0][0].Length));
         }
-
-        WFC_Generator.GenerateOverlapping(outputSize, tileSize, N, N_depth, processTiles, outputMap, offset, overlapTileCreation, transform);
+        //Debug.Log("builder");
+        //PrintInputMap();
+        WFC_Generator.GenerateOverlapping(outputSize, tileSize, N, N_depth, processTiles, outputMap, tiles, offset, overlapTileCreation, transform);
         WFC_output = WFC_Generator.outputTransform;
     }
 
     public void GenerateTiled() // based on user's input
     {
-        WFC_Generator.AutoFillTiled(dimensions, tileSize, seamless, processTiles, tilesetName, outputMap);
+        /*if (WFC_output != null)
+            DestroyImmediate(WFC_output.gameObject);
+
+        WFC_Generator.AutoFillTiled(dimensions, tileSize, seamless, processTiles, tilesetName, outputMap, transform);
+        WFC_output = WFC_Generator.outputTransform;
+        */
     }
     public void LoadTiles()
     {
@@ -257,5 +274,50 @@ public class EditorBuilder : MonoBehaviour
         {
             tiles[i] = new Tile(TilesManager.tilesTiled[i]);
         }
+    }
+
+    private void PrintInputMap()
+    {
+        int W = outputMap.Length;        // x
+        int D = outputMap[0].Length;     // y   
+        int L = outputMap[0][0].Length;  // z
+
+        string map = string.Empty;
+        for (int z = 0; z < L; z++)
+        {
+            for (int x = 0; x < W; x++)
+            {
+                map += outputMap[x][0][z].ToString() + " ";
+            }
+
+        }
+        Debug.Log(map);
+    }
+
+    private bool IsOutputEmpty()
+    {
+        bool empty = true;
+
+        int W = outputMap.Length;        // x
+        int D = outputMap[0].Length;     // y   
+        int L = outputMap[0][0].Length;  // z
+
+        string map = string.Empty;
+        for (int z = 0; z < L; z++)
+            for (int y = 0; y < D; y++)
+                for (int x = 0; x < W; x++)
+                {
+                    if (outputMap[x][y][z] != null)
+                    {
+                        empty = false;
+                        break;
+                    }
+                }
+        return empty;
+    }
+
+    private void PrintElement(Vector3 id)
+    {
+        Debug.Log(outputMap[(int)id.x][(int)id.y][(int)id.z]);
     }
 }

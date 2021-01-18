@@ -101,13 +101,13 @@ public class InfinityGenerator : MonoBehaviour
             }
 
             int counter = 0;
-            Model model;
+            Model model = null;
             do
             {
                 if (modelType == ModelType.Tiled)
                     model = new TiledModel(chunkSize, chunkSize, chunkDepth, tileSize, true, setName, neighbours, chunkGO.transform);
-                else
-                    model = new OverlappingModel(chunkSize, chunkSize, chunkDepth, tileSize, 3, 1, false, outputTiledMap, neighbours, chunkGO.transform);
+                /*else
+                    model = new OverlappingModel(chunkSize, chunkSize, chunkDepth, tileSize, 3, 1, false, outputTiledMap, neighbours, chunkGO.transform);*/
 
                 
 

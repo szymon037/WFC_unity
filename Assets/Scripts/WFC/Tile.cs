@@ -12,28 +12,29 @@ public class Tile
     public byte[] _tileValues = new byte[6];
     public long _index;
     public GameObject _tileGameObject = null;
-    public Matrix4x4 _transform = Matrix4x4.identity;
+    //public Matrix4x4 _transform = Matrix4x4.identity;
+    public Quaternion _rotation = Quaternion.identity;
+    public Vector3 _scale = Vector3.one;
     public string _tileName;  // original name, not changed with rotation or (Clone)
-    //public string[] _stringAdjacencies;
+    private bool _ground;
     public Tile() { }
 
-    public Tile(byte[] values, int N, int N_depth, int gameObjectsCount, float rotation, float scale)
+    public Tile(byte[] values, float rotation, float scale, bool ground = false)
     {
         _tileValues = values;
-
-        long power = 1;
-        for (int i = 0; i < _tileValues.Length; i++)
-        {
-            _index += _tileValues[_tileValues.Length - 1 - i] * power;
-            power *= gameObjectsCount;
-        }
-
+        _ground = ground;
+        
         scale = Mathf.Sign(scale);
+        _rotation *= Quaternion.Euler(Vector3.up * rotation);
 
-        Quaternion rot = _transform.rotation * Quaternion.Euler(Vector3.up * rotation);
-        Matrix4x4 rotMatrix = Matrix4x4.Rotate(rot);
-        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(1f, 1f, scale));
-        _transform = rotMatrix * scaleMatrix;
+        float x = 1f, z = 1f;
+        rotation = Mathf.Round(rotation);
+        if (rotation == 90f || rotation == 270f)
+            x = scale;
+        else
+            z = scale;
+
+        _scale = new Vector3(x, 1f, z);
     }
 
     // tiled
@@ -45,7 +46,8 @@ public class Tile
         _tileGameObject = tile._tileGameObject;
         _tileValues = tile._tileValues;
         _tileName = tile._tileName;
-        _transform = tile._transform;
+        _rotation = tile._rotation;
+        _scale = tile._scale;
         /*Debug.Log(_tileGameObjectName);
         for (int i = 0; i < _adjacencies[0].Length; i++)
         {
@@ -61,10 +63,21 @@ public class Tile
         _tileValues = tileValues;
         _tileName = tileGameObjectName;
 
-        Quaternion rot = _transform.rotation * Quaternion.Euler(Vector3.up * rotation);
-        Matrix4x4 rotMatrix = Matrix4x4.Rotate(rot);
-        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(1f, 1f, scale));
-        _transform = rotMatrix * scaleMatrix;
+        //Debug.Log("Tile.transform.rotation BEFORE CHANGE: " + _transform.rotation.eulerAngles.ToString());
+        scale = Mathf.Sign(scale);
+        _rotation *= Quaternion.Euler(Vector3.up * rotation);
+
+        float x = 1f, z = 1f;
+        rotation = Mathf.Round(rotation);
+        if (rotation == 90f || rotation == 270f)
+            z = scale;
+        else
+            x = scale;
+
+        _scale = new Vector3(x, 1f, z);
+        //_transform = rotMatrix * scaleMatrix;
+        //Debug.Log("Tile.rotation: " + rotation);
+        //Debug.Log("Tile.transform.rotation: " + _transform.rotation.eulerAngles.ToString());
     }
 
     public Tile(GameObject tileGameObject)
@@ -79,7 +92,7 @@ public class Tile
 
     public string GetName()
     {
-        return _tileName + _transform.rotation.eulerAngles.ToString() + " " + _transform.lossyScale.ToString();
+        return _tileName + _rotation.eulerAngles.ToString() + " " + _scale.ToString();
     }
 
     public void CalculateBitValue()
@@ -94,7 +107,15 @@ public class Tile
             }
             _tileValues[i] = (byte)bitValue;
         }
-        
+
+    }
+
+    public void SetAdjacencies(int d, List<int> list)
+    {
+        /*if (_ground)
+            list.Add(Model.groundIndex);*/
+
+        _tileAdjacencies[d] = list.ToArray();
     }
 
     public XElement ToXML()
@@ -118,7 +139,26 @@ public class Tile
         XElement tile = new XElement("tile", new XAttribute("name", _tileName), new XAttribute("frequency", _weight),
             new XAttribute("L", adj[0]), new XAttribute("R", adj[1]), new XAttribute("U", adj[2]),
             new XAttribute("D", adj[3]), new XAttribute("F", adj[4]), new XAttribute("B", adj[5]));
-        
+
         return tile;
+    }
+
+    public void CalculateIndex(int tilesNumber)
+    {
+        long power = 1;
+        for (int i = 0; i < _tileValues.Length; i++)
+        {
+            _index += _tileValues[_tileValues.Length - 1 - i] * power;
+            power *= tilesNumber;
+        }
+    }
+
+    public void PrintTileValues()
+    {
+        string s = string.Empty;
+        for (int i = 0; i < _tileValues.Length; i++)
+            s += _tileValues[i].ToString() + " ";
+
+        Debug.Log(s);
     }
 }

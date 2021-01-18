@@ -148,7 +148,7 @@ public static class TilesManager
         if (tile == null || (tile._tileValues[0] == tile._tileValues[1] && tile._tileValues[0] == tile._tileValues[4] && tile._tileValues[0] == tile._tileValues[5]))
             return null;
 
-        Quaternion rotation = tile._transform.rotation;
+        Quaternion rotation = tile._rotation;
         float rotationY = rotation.eulerAngles.y;
 
         byte[] tileValues = new byte[6];
@@ -161,21 +161,25 @@ public static class TilesManager
         return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileName, rotationY + 90f, 1f);
     }
 
-    public static Tile ReflectTile(Tile tile)
+    public static Tile ReflectTile(Tile tile, bool skipValueCheck = false)
     {
         if (tile == null)
+        {
             return null;
+        }
 
         bool threeDifferentValues = (tile._tileValues[0] != tile._tileValues[1] && tile._tileValues[0] != tile._tileValues[4] && tile._tileValues[1] != tile._tileValues[4]) || (tile._tileValues[0] != tile._tileValues[5] && tile._tileValues[0] != tile._tileValues[4] && tile._tileValues[5] != tile._tileValues[4]);
-        if (!((tile._tileValues[0] != tile._tileValues[1] && tile._tileValues[4] != tile._tileValues[5]) && threeDifferentValues))
+        if (!skipValueCheck && !((tile._tileValues[0] != tile._tileValues[1] && tile._tileValues[4] != tile._tileValues[5]) && threeDifferentValues))
+        {
             return null;
-
+        }
         //GameObject reflectedTileGameObject = Object.Instantiate(tile._tileGameObject, Vector3.zero, tile._tileGameObject.transform.rotation);
         //reflectedTileGameObject.transform.localScale = new Vector3(1f, 1f, -1f);
         //Object.Destroy(reflectedTileGameObject);
 
-        Quaternion rotation = tile._transform.rotation;
+        Quaternion rotation = tile._rotation;
         float rotationY = rotation.eulerAngles.y;
+
 
         byte[] tileValues = new byte[6];
         tileValues[0] = tile._tileValues[1];
