@@ -38,7 +38,7 @@ public class WFC_Generator : MonoBehaviour
         outputTransform = om.outputTransform;
     }
 
-    public static void AutoFillTiled(Vector3Int dimensions, int tileSize, bool seamless, bool processTiles, string setName, GameObject[][][] inputMap, Transform parent)
+    public static void AutoFillTiled(Vector3Int dimensions, int tileSize, bool seamless, bool processTiles, string setName, Tile[][][] inputMap, Transform parent)
     {
         TiledModel tm = new TiledModel(dimensions.x, dimensions.y, dimensions.z, tileSize, seamless, processTiles, setName, inputMap, parent);
         tm.Solve();

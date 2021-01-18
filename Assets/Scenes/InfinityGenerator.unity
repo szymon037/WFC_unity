@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_LightingSettings: {fileID: 4890085278179872738, guid: 705ea388de45a044a868df63c0e30920, type: 2}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 71312f72635681b468a4cfdfa2ed9a98, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -152,9 +152,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9c54face86fef44ab0a537c3b446a0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera: {fileID: 1193710763}
-  chunkIndicator: {fileID: 4004827241667852919, guid: d3eeaa99a3e2fdd48b53f8f8ab53a76d, type: 3}
-  currentRoundedCamPos: {x: 0, y: 0, z: 0}
+  player: {fileID: 1193710763}
+  chunkSize: 5
+  chunkDepth: 5
+  setName: city
+  tileSize: 4
   generationRadius: 2
 --- !u!4 &151097603
 Transform:

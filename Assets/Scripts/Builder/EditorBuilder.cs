@@ -11,6 +11,7 @@ public class EditorBuilder : MonoBehaviour
     //public int[][][] outputMap;
     public Tile[][][] outputMap;
     public Material transparentMat; ///TODO: load material from resources
+    [HideInInspector] public Transform WFC_output;
     [HideInInspector] public GameObject currentTileGO;
     [HideInInspector] public Tile[] tiles;
     public string tilesetName;
@@ -23,7 +24,6 @@ public class EditorBuilder : MonoBehaviour
     private Vector3 invisiblePos = new Vector3(-999f, 0f, 0f);
     private int currentTileIndex = 0;
     //private Tile currentTile
-    public Transform WFC_output;
 
     /// WFC SETTINGS
     [HideInInspector] public bool seamless = false;
@@ -176,12 +176,10 @@ public class EditorBuilder : MonoBehaviour
             id.x >= dimensions.x || id.y >= dimensions.y || id.z >= dimensions.z)
             return;
 
-        GameObject collider = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\colliderPrefab"), spawnPos, Quaternion.identity, collidersParent.transform);
-        collider.transform.localScale *= tileSize;
-        //GameObject tile = Instantiate(currentTileGO, spawnPos, tiles[currentTileIndex]._transform.rotation, tilesParent.transform);
         GameObject tile = Instantiate(currentTileGO, spawnPos, tiles[currentTileIndex]._rotation, tilesParent.transform);
         tile.name = currentTileGO.name + tile.transform.rotation.eulerAngles.ToString() + " " + tile.transform.localScale.ToString();
-        //outputMap[(int)id.x][(int)id.y][(int)id.z] = tile;
+        GameObject collider = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\colliderPrefab"), spawnPos, Quaternion.identity, tile.transform);
+        collider.transform.localScale *= tileSize;
         outputMap[id.x][id.y][id.z] = tiles[currentTileIndex];
     }
 
@@ -196,9 +194,8 @@ public class EditorBuilder : MonoBehaviour
         if (outputMap[(int)id.x][(int)id.y][(int)id.z] == null)
             return;
         
-        outputMap[(int)id.x][(int)id.y][(int)id.z] = null;    // empty
-        DestroyImmediate(rHit.transform.gameObject);
-        //outputMap[(int)id.x][(int)id.y][(int)id.z] = null;
+        outputMap[(int)id.x][(int)id.y][(int)id.z] = null;
+        DestroyImmediate(rHit.transform.parent.gameObject);
     }
 
     public void OnTilePrefabChange(int index)
@@ -258,12 +255,12 @@ public class EditorBuilder : MonoBehaviour
 
     public void GenerateTiled() // based on user's input
     {
-        /*if (WFC_output != null)
+        if (WFC_output != null)
             DestroyImmediate(WFC_output.gameObject);
 
         WFC_Generator.AutoFillTiled(dimensions, tileSize, seamless, processTiles, tilesetName, outputMap, transform);
         WFC_output = WFC_Generator.outputTransform;
-        */
+        
     }
     public void LoadTiles()
     {

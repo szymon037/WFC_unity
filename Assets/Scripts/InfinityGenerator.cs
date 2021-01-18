@@ -6,12 +6,12 @@ using UnityEngine.SceneManagement;
 
 public class InfinityGenerator : MonoBehaviour
 {
-    public Transform camera;
-    public GameObject chunkIndicator;
-    public static int chunkSize = 5;
-    public static int chunkDepth = 5;
-    public static int tileSize = 2;
-    public static string setName = "3DKnots";
+    public Transform player;
+    //public GameObject chunkIndicator;
+    public int chunkSize = 5;
+    public int chunkDepth = 5;
+    public string setName = "city";
+    public int tileSize = 4;
     public static Dictionary<(int, int), Chunk> chunksDictionary = new Dictionary<(int, int), Chunk>();
 
     public static int[,] chunkDir = new int[4, 2] { { -1, 0 }, { 1, 0 }, { 0, 1 }, { 0, -1 } }; // L R F B
@@ -23,7 +23,6 @@ public class InfinityGenerator : MonoBehaviour
     public static GameObject[][][] outputTiledMap;
 
     public static float chunkWorldSize;
-    [SerializeField]
     private Vector3 currentRoundedCamPos = Vector3.zero;
     private Vector3 lastRoundedCamPos = Vector3.zero;
     [SerializeField]
@@ -47,6 +46,10 @@ public class InfinityGenerator : MonoBehaviour
             visited = true;
         }
         public int x, z;
+        public static string setName;
+        public static int chunkSize;
+        public static int chunkDepth;
+        public static int tileSize;
 
         int[] solution;
         public int[][] slices;
@@ -134,6 +137,10 @@ public class InfinityGenerator : MonoBehaviour
         {
             Destroy(chunkGO);
         }
+        public int ID(int x, int y, int z)
+        {
+            return x + y * chunkSize * chunkSize + z * chunkSize;
+        }
     }
 
     
@@ -150,11 +157,16 @@ public class InfinityGenerator : MonoBehaviour
         chunkWorldSize = chunkSize * tileSize;
 
         chunksDictionary.Clear();
+        Chunk.setName = setName;
+        Chunk.chunkSize = chunkSize;
+        Chunk.chunkDepth = chunkDepth;
+        Chunk.tileSize = tileSize;
+
         /*Chunk a = new Chunk(currentX, currentZ);
         chunksDictionary.Add((currentX, currentZ), a);*/
-        chunkIndicator = Instantiate(chunkIndicator, Vector3.zero, Quaternion.identity);
-        chunkIndicator.transform.localScale = new Vector3(chunkWorldSize, 1f, chunkWorldSize) * 0.1f;
-        TeleportChunkIndicator();
+        //chunkIndicator = Instantiate(chunkIndicator, Vector3.zero, Quaternion.identity);
+        //chunkIndicator.transform.localScale = new Vector3(chunkWorldSize, 1f, chunkWorldSize) * 0.1f;
+        //TeleportChunkIndicator();
 
         currentRoundedCamPos = RoundCamPos();
         chunkStack = new (int, int)[generationRadius * generationRadius * 4];
@@ -173,7 +185,7 @@ public class InfinityGenerator : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.DownArrow))
             currentZ--;
 
-        TeleportChunkIndicator();
+        //TeleportChunkIndicator();
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -198,24 +210,21 @@ public class InfinityGenerator : MonoBehaviour
         }
     }
 
-    public static int ID(int x, int y, int z)
-    {
-        return x + y * chunkSize * chunkSize + z * chunkSize;
-    }
+    
 
     public void ReloadScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    public void TeleportChunkIndicator()
+    /*public void TeleportChunkIndicator()
     {
         chunkIndicator.transform.position = new Vector3(currentX * chunkSize * tileSize, 0f, currentZ * chunkSize * tileSize) + new Vector3(chunkSize * tileSize - tileSize, 0f, chunkSize * tileSize - tileSize) * 0.5f;
-    }
+    }*/
 
     private Vector3 RoundCamPos()
     {
-        return new Vector3(Mathf.Floor(camera.transform.position.x / chunkWorldSize), 0f, Mathf.Floor(camera.transform.position.z / chunkWorldSize));
+        return new Vector3(Mathf.Floor(player.transform.position.x / chunkWorldSize), 0f, Mathf.Floor(player.transform.position.z / chunkWorldSize));
     }
 
     private void GenerateChunks()
@@ -258,7 +267,8 @@ public class InfinityGenerator : MonoBehaviour
                 int x = chunkStack[chunkStackSize - 1].Item1;
                 int z = chunkStack[chunkStackSize - 1].Item2;
 
-                chunksDictionary[(x, z)].GenerateChunk();
+                if (chunksDictionary.ContainsKey((x, z)))
+                    chunksDictionary[(x, z)].GenerateChunk();
 
                 chunkStackSize--;
             }

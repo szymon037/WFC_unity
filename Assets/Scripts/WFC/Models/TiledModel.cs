@@ -7,7 +7,7 @@ using System.Text;
 
 class TiledModel : Model
 {
-    public TiledModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, bool processTiles, string setName = null, GameObject[][][] inputMap = null, Transform parent = null) : base(gridWidth, gridDepth, gridLength, tileSize, seamless, parent)
+    public TiledModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, bool processTiles, string setName = null, Tile[][][] inputMap = null, Transform parent = null) : base(gridWidth, gridDepth, gridLength, tileSize, seamless, parent)
     {
         this.tileSize = tileSize;
         if (setName != null)
@@ -99,7 +99,10 @@ class TiledModel : Model
     {
         outputTransform = new GameObject("WFC_output_tiled").transform;
         if (parent != null)
+        {
             outputTransform.parent = parent;
+            outputTransform.transform.localPosition= Vector3.zero;
+        }
 
         for (int z = 0; z < gridLength; z++)
             for (int y = 0; y < gridDepth; y++)
@@ -123,16 +126,17 @@ class TiledModel : Model
                 }
     }
 
-    private void ProcessInputMap(GameObject[][][] inputMap)
+    private void ProcessInputMap(Tile[][][] inputMap)
     {
         for (int x = 0; x < inputMap.Length; x++)
             for (int y = 0; y < inputMap[0].Length; y++)
                 for (int z = 0; z < inputMap[0][0].Length; z++)
                     for (int i = 0; i < tiles.Length; i++)
-                        if (inputMap[x][y][z] != null && inputMap[x][y][z].name == tiles[i].GetName())
+                        if (inputMap[x][y][z] != null && inputMap[x][y][z].GetName() == tiles[i].GetName())
                         {
                             int index = ID(x, y, z);
                             grid[index].ChooseTile(i);
+                            Debug.Log("Found tile: " + tiles[i].GetName());
                         }
 
              // update grid
