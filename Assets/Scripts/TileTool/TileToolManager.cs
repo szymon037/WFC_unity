@@ -115,6 +115,7 @@ public class TileToolManager : MonoBehaviour
         Init();
         TilesManager.LoadTilesTiled(tilesetName, false);
         tiles = new Tile[TilesManager.tilesTiled.Length];
+        tileSize = TilesManager.tileSize;
 
         for (int i = 0; i < TilesManager.tilesTiled.Length; i++)
             tiles[i] = new Tile(TilesManager.tilesTiled[i]);

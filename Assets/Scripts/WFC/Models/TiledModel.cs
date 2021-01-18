@@ -136,7 +136,6 @@ class TiledModel : Model
                         {
                             int index = ID(x, y, z);
                             grid[index].ChooseTile(i);
-                            Debug.Log("Found tile: " + tiles[i].GetName());
                         }
 
              // update grid

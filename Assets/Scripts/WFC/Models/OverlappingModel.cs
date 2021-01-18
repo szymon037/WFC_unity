@@ -130,13 +130,13 @@ class OverlappingModel : Model
         Debug.Log("Tiles adj:");
         for (int i = 0; i < tiles.Length; i++)
         {
-            for (int j = 0; j < 6; j++)
+            tiles[i].PrintTileValues();
+            /*for (int j = 0; j < 6; j++)
             {
                 if (tiles[i]._tileAdjacencies[j].Length > 0 && j != 2 && j != 3)
                 Debug.Log(tiles[i]._tileAdjacencies[j].Length);
-            }
+            }*/
         }
-            //tiles[i].PrintTileValues();
         
         InitGrid();
         Init();

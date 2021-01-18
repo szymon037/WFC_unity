@@ -11,7 +11,7 @@ public static class TilesManager
 {
     public static Tile[] tilesTiled = null;
     public static Tile[] tilesOverlap = null;
-
+    public static int tileSize = 0;
     public static void LoadTilesTiled(string setName, bool processTiles)
     {
         if (ReadData(setName))
@@ -47,10 +47,18 @@ public static class TilesManager
             {
                 case XmlNodeType.Element:
 
+                    if (reader.Name == "tiles")
+                    {
+                        reader.MoveToNextAttribute();
+                        if (reader.Name == "tileSize")
+                            tileSize = int.Parse(reader.Value);
+                    }
+
                     if (reader.Name == "tile")
                     {
                         Tile tile = new Tile();
                         byte[] tileValues = new byte[6];
+
                         while (reader.MoveToNextAttribute())
                         {
                             if (reader.Name == "name")
@@ -149,7 +157,17 @@ public static class TilesManager
             return null;
 
         Quaternion rotation = tile._rotation;
-        float rotationY = rotation.eulerAngles.y;
+        float rotationY = 0f;
+
+        //Debug.Log("rotation.eulerAngles.y: " + rotation.eulerAngles.y);
+
+        if (tile._tileValues[0] == tile._tileValues[1] && tile._tileValues[4] == tile._tileValues[5] && tile._tileValues[0] != tile._tileValues[4]) // if type I
+        {
+            float modulo = Mathf.Round(rotation.eulerAngles.y % 180f);
+            rotationY = (modulo > 0f) ? 0f : 90f;
+        }
+        else
+            rotationY = rotation.eulerAngles.y + 90f;
 
         byte[] tileValues = new byte[6];
         tileValues[0] = tile._tileValues[5];
@@ -158,27 +176,38 @@ public static class TilesManager
         tileValues[3] = tile._tileValues[3];
         tileValues[4] = tile._tileValues[0];
         tileValues[5] = tile._tileValues[1];
-        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileName, rotationY + 90f, 1f);
+        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileName, rotationY, 1f);
     }
 
     public static Tile ReflectTile(Tile tile, bool skipValueCheck = false)
     {
         if (tile == null)
-        {
             return null;
-        }
+
+        if (tile._tileValues[0] == tile._tileValues[1] && tile._tileValues[4] == tile._tileValues[5] && tile._tileValues[0] != tile._tileValues[4]) // if type I
+            return null;
+
+        Quaternion rotation = tile._rotation;
+        float rotationY = Mathf.Round(rotation.eulerAngles.y);
 
         bool threeDifferentValues = (tile._tileValues[0] != tile._tileValues[1] && tile._tileValues[0] != tile._tileValues[4] && tile._tileValues[1] != tile._tileValues[4]) || (tile._tileValues[0] != tile._tileValues[5] && tile._tileValues[0] != tile._tileValues[4] && tile._tileValues[5] != tile._tileValues[4]);
         if (!skipValueCheck && !((tile._tileValues[0] != tile._tileValues[1] && tile._tileValues[4] != tile._tileValues[5]) && threeDifferentValues))
-        {
             return null;
+
+
+        else if (skipValueCheck)
+        {
+            float modulo = Mathf.Round(rotation.eulerAngles.y % 180f);
+            if (modulo == 90f)
+                return RotateTile(RotateTile(RotateTile(tile)));
+            return RotateTile(tile);
         }
+
         //GameObject reflectedTileGameObject = Object.Instantiate(tile._tileGameObject, Vector3.zero, tile._tileGameObject.transform.rotation);
         //reflectedTileGameObject.transform.localScale = new Vector3(1f, 1f, -1f);
         //Object.Destroy(reflectedTileGameObject);
 
-        Quaternion rotation = tile._rotation;
-        float rotationY = rotation.eulerAngles.y;
+        
 
 
         byte[] tileValues = new byte[6];

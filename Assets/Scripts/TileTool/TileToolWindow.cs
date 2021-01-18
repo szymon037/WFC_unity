@@ -12,6 +12,7 @@ public class TileToolWindow : EditorWindow
     private static string faceName = "None";
     private static string faceIndices = "None";
     private static int faceIndex;
+
     // L - 0, R - 1, U - 2, D - 3, F - 4, B - 5
     private static Dictionary<Vector3, int> directionsToIndexDictionary = new Dictionary<Vector3, int>{
         { Vector3.left, 0 }, { Vector3.right, 1 }, { Vector3.up, 2 }, { Vector3.down, 3}, { Vector3.forward, 4 }, { Vector3.back, 5 } };
@@ -79,8 +80,8 @@ public class TileToolWindow : EditorWindow
         if (GUILayout.Button("--"))
             maxIndicesNr--;
 
-        if (GUILayout.Button("Save tile changes"))
-            SaveTileChanges();
+        /*if (GUILayout.Button("Save tile changes"))
+            SaveTileChanges();*/
 
         
 
@@ -89,6 +90,8 @@ public class TileToolWindow : EditorWindow
 
     public static void OnTilePrefabChange(int index)
     {
+        SaveTileChanges();
+
         tileIndex = index;
         weight = tileToolManager.tiles[tileIndex]._weight;
         for (int i = 0; i < 6; i++)
@@ -131,6 +134,9 @@ public class TileToolWindow : EditorWindow
 
     public static void SaveTileChanges()
     {
+        if (tileIndex < 0f)
+            return;
+
         tileToolManager.tiles[tileIndex]._weight = weight;
         for (int i = 0; i < 6; i++)
             tileToolManager.tiles[tileIndex]._edgeAdjacencies[i] = edgeAdjacencies[i].ToArray();

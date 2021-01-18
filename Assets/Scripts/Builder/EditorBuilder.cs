@@ -90,9 +90,9 @@ public class EditorBuilder : MonoBehaviour
         if (highlightCurrentTileGO == null && currentTileGO != null && tiles != null)
         {
             highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._rotation, transform);
-            /*foreach (Transform child in highlightCurrentTileGO.transform)
-                if (child.GetComponent<Renderer>() != null)
-                    child.GetComponent<Renderer>().material = transparentMat;*/
+            Renderer[] renderers = highlightCurrentTileGO.transform.GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < renderers.Length; i++)
+                renderers[i].material = transparentMat;
         }
 
 
@@ -188,13 +188,15 @@ public class EditorBuilder : MonoBehaviour
     {
         if (rHit.transform == null || outputMap == null || rHit.transform.position.y < 0f)
             return;
-        Vector3 pos = rHit.transform.position;
-        Vector3 id = pos / tileSize;
 
-        if (outputMap[(int)id.x][(int)id.y][(int)id.z] == null)
+        Vector3 pos = rHit.transform.position;
+        Vector3 idFloat = pos / tileSize;
+        Vector3Int id = new Vector3Int(Mathf.RoundToInt(idFloat.x), Mathf.RoundToInt(idFloat.y), Mathf.RoundToInt(idFloat.z));
+
+        if (outputMap[id.x][id.y][id.z] == null)
             return;
         
-        outputMap[(int)id.x][(int)id.y][(int)id.z] = null;
+        outputMap[id.x][id.y][id.z] = null;
         DestroyImmediate(rHit.transform.parent.gameObject);
     }
 
@@ -209,11 +211,9 @@ public class EditorBuilder : MonoBehaviour
             DestroyImmediate(highlightCurrentTileGO);
         highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._rotation, transform);
 
-        /*foreach (Transform child in highlightCurrentTileGO.transform)
-        {
-            if (child.GetComponent<Renderer>() != null)
-                child.GetComponent<Renderer>().material = transparentMat;
-        }*/
+        Renderer[] renderers = highlightCurrentTileGO.transform.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderers.Length; i++)
+            renderers[i].material = transparentMat;
 
     }
 
@@ -266,6 +266,7 @@ public class EditorBuilder : MonoBehaviour
     {
         TilesManager.LoadTilesTiled(tilesetName, false);
         tiles = new Tile[TilesManager.tilesTiled.Length];
+        tileSize = (TilesManager.tileSize <= 0) ? 2 : TilesManager.tileSize;
 
         for (int i = 0; i < TilesManager.tilesTiled.Length; i++)
         {
@@ -293,6 +294,9 @@ public class EditorBuilder : MonoBehaviour
 
     private bool IsOutputEmpty()
     {
+        if (outputMap == null)
+            return true;
+
         bool empty = true;
 
         int W = outputMap.Length;        // x
@@ -311,10 +315,5 @@ public class EditorBuilder : MonoBehaviour
                     }
                 }
         return empty;
-    }
-
-    private void PrintElement(Vector3 id)
-    {
-        Debug.Log(outputMap[(int)id.x][(int)id.y][(int)id.z]);
     }
 }
