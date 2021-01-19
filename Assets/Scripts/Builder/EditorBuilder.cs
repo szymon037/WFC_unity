@@ -212,8 +212,10 @@ public class EditorBuilder : MonoBehaviour
         highlightCurrentTileGO = Instantiate(currentTileGO, invisiblePos, tiles[currentTileIndex]._rotation, transform);
 
         Renderer[] renderers = highlightCurrentTileGO.transform.GetComponentsInChildren<Renderer>();
+        transparentMat.SetTexture("_MainTex", renderers[0].sharedMaterial.GetTexture("_MainTex"));
         for (int i = 0; i < renderers.Length; i++)
             renderers[i].material = transparentMat;
+
 
     }
 
