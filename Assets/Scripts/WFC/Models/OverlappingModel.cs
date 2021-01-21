@@ -127,16 +127,16 @@ class OverlappingModel : Model
         }
 
         tiles = newTiles.ToArray();
-        Debug.Log("Tiles adj:");
+        /*Debug.Log("Tiles adj:");
         for (int i = 0; i < tiles.Length; i++)
         {
             tiles[i].PrintTileValues();
-            /*for (int j = 0; j < 6; j++)
+            for (int j = 0; j < 6; j++)
             {
                 if (tiles[i]._tileAdjacencies[j].Length > 0 && j != 2 && j != 3)
                 Debug.Log(tiles[i]._tileAdjacencies[j].Length);
-            }*/
-        }
+            }
+        }*/
         
         InitGrid();
         Init();
@@ -320,8 +320,7 @@ class OverlappingModel : Model
                 }
             }
 
-            Vector3 vertOffset = tileoffset + Vector3.up * (N_depth + 1) * tileSize;
-
+            /*Vector3 vertOffset = tileoffset + Vector3.up * (N_depth + 1) * tileSize;
             for (int j = 0; j < tiles[i]._tileAdjacencies[aID].Length; j++)
             {
                 for (int z = 0; z < N; z++)
@@ -340,7 +339,7 @@ class OverlappingModel : Model
                     }
                 }
                 vertOffset += Vector3.up * (N_depth + 1) * tileSize;
-            }
+            }*/
 
             tileoffset += Vector3.right * (N + 1) * tileSize;
         }

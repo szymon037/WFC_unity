@@ -73,10 +73,8 @@ public class TileToolWindow : EditorWindow
         }
 
         if (GUILayout.Button("++"))
-        {
             maxIndicesNr++;
-            Debug.Log(maxIndicesNr + " " + Mathf.Ceil(maxIndicesNr / indicesInRow));
-        }
+
         if (GUILayout.Button("--"))
             maxIndicesNr--;
 

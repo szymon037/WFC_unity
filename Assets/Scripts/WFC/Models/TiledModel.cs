@@ -135,7 +135,9 @@ class TiledModel : Model
                         if (inputMap[x][y][z] != null && inputMap[x][y][z].GetName() == tiles[i].GetName())
                         {
                             int index = ID(x, y, z);
-                            grid[index].ChooseTile(i);
+                            if (grid[index]._entropy > 0f) // TODO: same tile is found twice. fix this
+                                grid[index].ChooseTile(i);
+
                         }
 
              // update grid

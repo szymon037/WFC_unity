@@ -228,7 +228,7 @@ public class EditorBuilder : MonoBehaviour
         Tile rotationTile = TilesManager.RotateTile(tiles[currentTileIndex]);
         if (rotationTile == null)
         {
-            Debug.Log("could not rotate");
+            //Debug.Log("could not rotate");
             return;
         }
 
