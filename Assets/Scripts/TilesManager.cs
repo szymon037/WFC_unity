@@ -108,7 +108,7 @@ public static class TilesManager
             {
                 adjacencies[i] = int.Parse(neighbours[i]);
             }
-            catch (FormatException e)
+            catch (FormatException)
             {
                 adjacencies = new int[0];
                 break;
@@ -176,7 +176,7 @@ public static class TilesManager
         tileValues[3] = tile._tileValues[3];
         tileValues[4] = tile._tileValues[0];
         tileValues[5] = tile._tileValues[1];
-        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileName, rotationY, 1f);
+        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileName, rotationY, 1f, tile._ground, tile._ceiling);
     }
 
     public static Tile ReflectTile(Tile tile, bool skipValueCheck = false)
@@ -218,7 +218,7 @@ public static class TilesManager
         tileValues[4] = tile._tileValues[4];
         tileValues[5] = tile._tileValues[5];
 
-        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileName, rotationY, -1f);
+        return new Tile(tile._weight, tile._tileGameObject, tileValues, tile._tileName, rotationY, -1f, tile._ground, tile._ceiling);
     }
     private static void CreateAdjacencies()
     {

@@ -13,12 +13,19 @@ public class Cell
     public float _entropy;
     public int _possibilities;
     public int[][] _compatible = new int[Model.tiles.Length][];
-
-    public Cell(int index, float entropy, int[][] compatible)
+    private bool _ceiling;
+    private int _x;
+    private int _y;
+    private int _z;
+    public Cell(int index, float entropy, int[][] compatible, bool ceiling, int x, int z, int y)
     {
         _index = index;
         _entropy = entropy;
         _possibilities = Model.tiles.Length;
+        _ceiling = ceiling;
+        _x = x;
+        _z = z;
+        _y = y;
 
         for (int i = 0; i < _coefficients.Length; i++)
         {
@@ -68,8 +75,17 @@ public class Cell
 
     public void ChooseTile(int tileIndex = -1)
     {
-        /*if (_index == 0)
-            Debug.Log("ChooseTile");*/
+        //Debug.Log("Choose tile: " + _x + " " + _y + " " + _z);
+
+        ChooseCeiling();
+        if (Model.floorCheck[_x, _z])
+        {
+            //Debug.Log("Floor exists: " + _x + " " + _z);
+            BanGroundTiles();
+            //Debug.Log("Possibilities: " + _possibilities);
+        }
+
+
         if (tileIndex == -1)
         {
             tileIndex = 0;
@@ -99,6 +115,12 @@ public class Cell
 
         _tile = Model.tiles[tileIndex];
         _tileIndex = tileIndex;
+
+        if (_tile._ground)
+        {
+            Model.floorCheck[_x, _z] = true;
+            //Debug.Log("Floor set: " + _x + " " + _z);
+        }
 
         for (int i = 0; i < _coefficients.Length; i++)
         {
@@ -165,5 +187,22 @@ public class Cell
 
         Model.stack[Model.stackSize] = (_index, tileIndex);
         Model.stackSize++;
+    }
+
+    private void ChooseCeiling()
+    {
+        if (!_ceiling)
+            return;
+
+        for (int i = 0; i < _coefficients.Length; i++)
+            if (!Model.tiles[i]._ceiling)
+                RemoveTile(i);
+    }
+
+    private void BanGroundTiles()
+    {
+        for (int i = 0; i < _coefficients.Length; i++)
+            if (Model.tiles[i]._ground && i != _tileIndex)
+                RemoveTile(i);
     }
 }

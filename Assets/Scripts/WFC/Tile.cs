@@ -16,7 +16,8 @@ public class Tile
     public Quaternion _rotation = Quaternion.identity;
     public Vector3 _scale = Vector3.one;
     public string _tileName;  // original name, not changed with rotation or (Clone)
-    private bool _ground;
+    public bool _ground;
+    public bool _ceiling;
     public Tile() { }
 
     public Tile(byte[] values, float rotation, float scale, bool ground = false)
@@ -48,6 +49,8 @@ public class Tile
         _tileName = tile._tileName;
         _rotation = tile._rotation;
         _scale = tile._scale;
+        _ground = tile._ground;
+        _ceiling = tile._ceiling;
         /*Debug.Log(_tileGameObjectName);
         for (int i = 0; i < _adjacencies[0].Length; i++)
         {
@@ -56,12 +59,14 @@ public class Tile
         //_stringAdjacencies = tile._stringAdjacencies;
     }
 
-    public Tile(float frequencyHint, GameObject tileGameObject, byte[] tileValues, string tileGameObjectName, float rotation, float scale)
+    public Tile(float frequencyHint, GameObject tileGameObject, byte[] tileValues, string tileGameObjectName, float rotation, float scale, bool ground, bool ceiling)
     {
         _weight = frequencyHint;
         _tileGameObject = tileGameObject;
         _tileValues = tileValues;
         _tileName = tileGameObjectName;
+        _ground = ground;
+        _ceiling = ceiling;
 
         //Debug.Log("Tile.transform.rotation BEFORE CHANGE: " + _transform.rotation.eulerAngles.ToString());
         scale = Mathf.Sign(scale);
@@ -97,16 +102,20 @@ public class Tile
 
     public void CalculateBitValue()
     {
+        bool zero = true;
         for (int i = 0; i < 6; i++)
         {
             int bitValue = 0;
             for (int j = 0; j < _edgeAdjacencies[i].Length; j++)
             {
                 bitValue |= 1 << _edgeAdjacencies[i][j];
-                //Debug.Log(_adjacencies[i][j]);
+                zero &= (_edgeAdjacencies[i][j] == 0);
+                _ceiling |= (i == 2) & (_edgeAdjacencies[i][j] == 0);
+                _ground |= (i == 3) & (_edgeAdjacencies[i][j] == 0);
             }
             _tileValues[i] = (byte)bitValue;
         }
+        _ground &= !zero;
 
     }
 

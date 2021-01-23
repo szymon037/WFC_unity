@@ -23,6 +23,7 @@ public abstract class Model
     protected bool chunkGeneration = false;
     public Transform outputTransform;
     public static int groundIndex = -1;
+    public static bool[,] floorCheck;
     ///TODO: clearing whole model on solve (so creating new Model is not needed)
     ///TODO: extrnal tile creator and processor - needed in infinity generator
 
@@ -50,7 +51,7 @@ public abstract class Model
                 output[x][y] = new GameObject[gridLength];
             }
         }
-        
+        floorCheck = new bool[gridWidth, gridLength];
     }
 
     public void InitGrid()
@@ -75,7 +76,9 @@ public abstract class Model
 
         for (int i = 0; i < grid.Length; i++)
         {
-            grid[i] = new Cell(i, startEntropy, compatible);
+            int[] coords = FromID(i);
+
+            grid[i] = new Cell(i, startEntropy, compatible, (coords[1] == gridDepth - 1), coords[0], coords[2], coords[1]);
         }
     }
 
@@ -90,6 +93,7 @@ public abstract class Model
         if (result == -1)
         {
             Debug.Log("Solution not found");
+
             return false;
         }
         else if (result == -2)
@@ -213,7 +217,7 @@ public abstract class Model
         return x + y * gridWidth * gridLength + z * gridWidth;
     }
 
-    protected int[] FromID(int ID)
+    public int[] FromID(int ID)
     {
         int y = ID / (gridWidth * gridLength);
         ID -= y * (gridWidth * gridLength);

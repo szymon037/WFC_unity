@@ -24,8 +24,6 @@ class TiledModel : Model
 
         if (inputMap != null)
             ProcessInputMap(inputMap);
-        else
-            Debug.Log("input map NULL");
         /*int i = 2;
         grid[0].ChooseTile(i);
         Debug.Log("tile name: " + tiles[i].GetName());*/
