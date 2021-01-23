@@ -24,9 +24,6 @@ class TiledModel : Model
 
         if (inputMap != null)
             ProcessInputMap(inputMap);
-        /*int i = 2;
-        grid[0].ChooseTile(i);
-        Debug.Log("tile name: " + tiles[i].GetName());*/
     }
 
     // infinite chunk generation
@@ -89,9 +86,6 @@ class TiledModel : Model
            
         }
     }
-
-    
-
     
     public override void GenerateOutput()
     {
@@ -138,7 +132,6 @@ class TiledModel : Model
 
                         }
 
-             // update grid
     }
 
     public override bool OnBorder(int x, int y, int z)
@@ -146,6 +139,4 @@ class TiledModel : Model
         return (x < 0 || y < 0 || z < 0 || 
                 x >= gridWidth || y >= gridDepth || z >= gridLength);
     }
-
-    
 }

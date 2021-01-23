@@ -17,6 +17,7 @@ public class Cell
     private int _x;
     private int _y;
     private int _z;
+
     public Cell(int index, float entropy, int[][] compatible, bool ceiling, int x, int z, int y)
     {
         _index = index;
@@ -42,42 +43,10 @@ public class Cell
         }
     }
 
-    public Cell(int index, int tileIndex) // Used for autofill
-    {
-        _index = index;
-        //_tileIndex = tileIndex;
-        //_tile = Model.tiles[_tileIndex];
-
-        for (int i = 0; i < Model.tiles.Length; i++)
-            _coefficients[i] = (_tileIndex) == i;
-
-        _possibilities = 1;
-        _entropy = 0f;
-
-
-        for (int i = 0; i < Model.tiles.Length; i++)
-        {
-            _compatible[i] = new int[6];
-            for (int j = 0; j < 6; j++)
-            {
-                _compatible[i][j] = Model.tiles[i]._tileAdjacencies[j].Length;
-            }
-        }
-        ChooseTile(tileIndex);
-        Debug.Log("name of tgo: " + _tile._tileGameObject.name);
-        /*
-        for (int i = 0; i < _coefficients.Length; i++)
-        {
-            if (i != _tileIndex)
-                RemoveTile(i);
-        }*/
-    }
-
     public void ChooseTile(int tileIndex = -1)
     {
         ChooseCeiling();
-            BanGroundTiles();
-
+        BanGroundTiles();
 
         if (tileIndex == -1)
         {
@@ -110,10 +79,7 @@ public class Cell
         _tileIndex = tileIndex;
 
         if (_tile._ground)
-        {
             Model.floorCheck[_x, _z] = true;
-            //Debug.Log("Floor set: " + _x + " " + _z);
-        }
 
         for (int i = 0; i < _coefficients.Length; i++)
         {
@@ -140,7 +106,6 @@ public class Cell
         if (_possibilities == 1)
             ChooseTile();
     }
-
     public int[] GetRemovedTiles()
     {
         List<int> removed = new List<int>();
@@ -152,7 +117,6 @@ public class Cell
 
         return removed.ToArray();
     }
-
 
     public Tile GetTile()
     {

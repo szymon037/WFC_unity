@@ -13,11 +13,10 @@ class OverlappingModel : Model
     int N;
     int N_depth;
     private Dictionary<long, Tile> tilesDictionary = new Dictionary<long, Tile>();
-    //public List<GameObject> gameObjects = new List<GameObject>();
     public List<Tile> tilesList = new List<Tile>();
     private bool overlapTileCreation = true;
 
-    public OverlappingModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, int N, int N_depth, bool tileProcessing, Tile[][][] inputMap, Tile[] tileArray, bool overlapTileCreation, Transform parent = null) : base(gridWidth, gridDepth, gridLength, tileSize, seamless, parent)
+    public OverlappingModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, int N, int N_depth, bool tileProcessing, Tile[][][] inputMap, bool overlapTileCreation, Transform parent = null) : base(gridWidth, gridDepth, gridLength, tileSize, seamless, parent)
     {
 
         W = inputMap.Length;        // x
@@ -27,9 +26,6 @@ class OverlappingModel : Model
         this.N = N;
         this.N_depth = N_depth;
         this.overlapTileCreation = overlapTileCreation;
-
-        /// TODO: fill tileArray with empty tiles before starting WFC
-        //tilesList = new List<Tile>(tileArray);
 
         GameObject emptyGO = Resources.Load<GameObject>("Tiles\\Empty");
         Tile emptyTile = new Tile(emptyGO);
@@ -46,28 +42,18 @@ class OverlappingModel : Model
                     else
                         currentTile = inputMap[x][y][z];
 
-                    /*if (!tilesList.Exists(t => t.GetName() == currentTile.GetName()))
-                    {
-                        tilesList.Add(currentTile);
-                        i = tilesList.Count - 1;
-                    }*/
-
                     for (int c = 0; c < tilesList.Count; c++)
                     {
                         if (currentTile.GetName() == tilesList[c].GetName()) /// TODO: NULL (CAUSE: SOLUTION NOT FOUND IN TILED)
-                        {
-                            //Debug.Log("same go: " + currentGameObject.name);
                             break;
-                        }
+
                         ++i;
                     }
 
                     if (tilesList.Count == i) tilesList.Add(currentTile);
                     indexMap[x, y, z] = (byte)i;
-                    //indexMap[x, y, z] = (byte)inputMap[x][y][z];
                 }
-        //Debug.Log("gameObjects.Count: " + gameObjects.Count);
-
+        
         // tile creation
         List <Tile> newTiles = new List<Tile>();
         for (int z = 0; z < L; z++)
@@ -75,7 +61,6 @@ class OverlappingModel : Model
                 for (int x = 0; x < W; x++)
                 {
                     Tile tile = CreateTile(x, y, z);
-                    //Tile tile = CreateTile(0, 0, 0);
                     if (tile != null)
                         newTiles.Add(tile);
                 }
@@ -127,148 +112,10 @@ class OverlappingModel : Model
         }
 
         tiles = newTiles.ToArray();
-        /*Debug.Log("Tiles adj:");
-        for (int i = 0; i < tiles.Length; i++)
-        {
-            tiles[i].PrintTileValues();
-            for (int j = 0; j < 6; j++)
-            {
-                if (tiles[i]._tileAdjacencies[j].Length > 0 && j != 2 && j != 3)
-                Debug.Log(tiles[i]._tileAdjacencies[j].Length);
-            }
-        }*/
         
         InitGrid();
         Init();
     }
-
-    // Constructor for infinity generation
-    /*public OverlappingModel(int gridWidth, int gridLength, int gridDepth, int tileSize, int N, int N_depth, bool tileProcessing, GameObject[][][] inputMap, int[][] neighbourCells, Transform parent = null) : base(gridWidth, gridLength, gridDepth, tileSize, false, parent)
-    {
-        chunkGeneration = true;
-
-        W = inputMap.Length;        // x
-        D = inputMap[0].Length;     // y   
-        L = inputMap[0][0].Length;  // z
-        indexMap = new byte[W, D, L];
-        this.N = N;
-        this.N_depth = N_depth;
-
-        for (int z = 0; z < L; z++)
-            for (int y = 0; y < D; y++)
-                for (int x = 0; x < W; x++)
-                {
-                    int i = 0;
-                    GameObject currentGameObject = inputMap[x][y][z];
-
-                    for (int c = 0; c < gameObjects.Count; c++)
-                    {
-                        if (currentGameObject.name == gameObjects[c].name) /// TODO: NULL (CAUSE: SOLUTION NOT FOUND IN TILED)
-                        {
-                            break;
-                        }
-                        ++i;
-                    }
-
-                    if (gameObjects.Count == i) gameObjects.Add(currentGameObject);
-                    indexMap[x, y, z] = (byte)i;
-                }
-
-        // tile creation
-        List<Tile> newTiles = new List<Tile>();
-        for (int z = 0; z < L; z++)     /// 3D: should tile creation overlap in Y?
-            for (int y = 0; y < D; y++)
-                for (int x = 0; x < W; x++)
-                {
-                    Tile tile = CreateTile(x, y, z);
-                    if (tile != null)
-                        newTiles.Add(tile);
-                    //CountWeights(tile);
-                }
-
-        int maxProcessIndex = (tileProcessing) ? 8 : 1;
-        foreach (Tile tile in newTiles)
-        {
-            Tile[] tilesToProcess = new Tile[8];
-            tilesToProcess[0] = tile;
-            if (tileProcessing)
-            {
-                tilesToProcess[1] = RotateTile(tilesToProcess[0]);
-                tilesToProcess[2] = ReflectTile(tilesToProcess[0]);
-                tilesToProcess[3] = RotateTile(tilesToProcess[2]);
-                tilesToProcess[4] = ReflectTile(tilesToProcess[2]);
-                tilesToProcess[5] = RotateTile(tilesToProcess[4]);
-                tilesToProcess[6] = ReflectTile(tilesToProcess[4]);
-                tilesToProcess[7] = ReflectTile(tilesToProcess[6]);
-            }
-
-
-            for (int i = 0; i < maxProcessIndex; i++)
-                CountWeights(tilesToProcess[i]);
-        }
-
-        newTiles = tilesDictionary.Values.ToList();
-
-        for (int i = 0; i < newTiles.Count; i++)
-        {
-            for (int d = 0; d < 6; d++)
-            {
-                List<int> l = new List<int>();
-                for (int j = 0; j < newTiles.Count; j++)
-                {
-                    if (CheckAdjacencies(newTiles[i], newTiles[j], d))
-                        l.Add(j);
-                }
-                newTiles[i].SetAdjacencies(d, l);
-            }
-        }
-
-        tiles = newTiles.ToArray();
-        InitGrid();
-        Init();
-
-        /// PARSING NEIGBOURS
-        for (int i = 0; i < 4; i++)
-        {
-            if (neighbourCells[i] == null)
-                continue;
-
-            int dirIndex = (i > 1) ? i + 2 : i; // i'm so sorry
-            if (dirIndex == 0 || dirIndex == 1) // L
-            {
-                int x = (dirIndex == 0) ? 0 : gridWidth - 1;
-                for (int j = 0; j < neighbourCells[i].Length; j++)
-                {
-                    int y = j / gridLength;
-                    int z = j % gridLength;
-
-                    int index = ID(x, y, z);
-
-                    for (int m = 0; m < tiles.Length; m++)
-                        if (m != neighbourCells[i][j])
-                            grid[index].UpdatePossibilities(m, opposite[dirIndex]);
-                }
-            }
-
-            else if (dirIndex == 4 || dirIndex == 5)
-            {
-                int z = (dirIndex == 4) ? gridLength - 1 : 0;
-                for (int j = 0; j < neighbourCells[i].Length; j++)
-                {
-                    int y = j / gridLength;
-                    int x = j % gridLength;
-
-                    int index = ID(x, y, z);
-
-
-                    for (int m = 0; m < tiles.Length; m++)
-                        if (m != neighbourCells[i][j])
-                            grid[index].UpdatePossibilities(m, opposite[dirIndex]);
-                }
-            }
-
-        }
-    }*/
 
     private Tile CreateTile(int x, int y, int z)
     {
@@ -366,11 +213,10 @@ class OverlappingModel : Model
             for (int y = 0; y < gridDepth; y++)
                 for (int x = 0; x < gridWidth; x++)
                 {
-                    /// TODO: REMEMBER ABOUT chunkGeneration - DIFFERENT TYPE OF INSTANTIATE
+                    /// REMEMBER ABOUT chunkGeneration - DIFFERENT TYPE OF INSTANTIATE
                     int id = ID(x, y, z);
                     if (grid[id].GetTile() != null)
                     {
-                        //GameObject go = Object.Instantiate(gameObjects[grid[id].GetTile()._tileValues[0]], new Vector3(x, y, z) * tileSize + offset, grid[id].GetTile()._transform.rotation * gameObjects[grid[id].GetTile()._tileValues[0]].transform.rotation, chunkGO.transform);
                         GameObject go = Object.Instantiate(tilesList[grid[id].GetTile()._tileValues[0]]._tileGameObject, new Vector3(x, y, z) * tileSize + offset, tilesList[grid[id].GetTile()._tileValues[0]]._rotation, outputTransform);
                         go.transform.localScale = tilesList[grid[id].GetTile()._tileValues[0]]._scale;
                     }
@@ -423,14 +269,9 @@ class OverlappingModel : Model
                         newValues[id] = (byte)(tilesList.Count - 1);
                     }
                     else if (rotatedModule != null)
-                    {
                         newValues[id] = (byte)(tilesList.IndexOf(tilesList.Find(t => t.GetName() == rotatedModule.GetName())));
-                        //Debug.Log("index: " + newValues[id]);
-                        //Debug.Log("tile exists: " + rotatedModule.GetName());
-                    }
-                    /*if (rotatedModule == null)
-                        Debug.Log("rotatedModule null");*/
                 }
+
         return new Tile(newValues, rotationY + 90f, 1f);
     }
 
@@ -447,9 +288,7 @@ class OverlappingModel : Model
                     int id = x + y * N * N + z * N;
                     int reflectedId = N - x - 1 + z * N + y * N * N;
                     newValues[id] = tile._tileValues[reflectedId];
-                    //Debug.Log("rot b4 trflect: " + tilesList[newValues[id]]._transform.rotation.eulerAngles.ToString());
                     Tile reflectedModule = TilesManager.ReflectTile(tilesList[newValues[id]], true); // rotated tile model/module
-                    //Debug.Log("rot after trflect: " + reflectedModule._transform.rotation.eulerAngles.ToString());
 
                     if (reflectedModule != null && !tilesList.Exists(t => t.GetName() == reflectedModule.GetName()))
                     {
@@ -479,8 +318,6 @@ class OverlappingModel : Model
         int maxY = Mathf.Min(dirY + N_depth, N_depth);
         int maxZ = Mathf.Min(dirZ + N, N);
 
-        //Debug.Log("tileA._tileValues.Length: " + N);
-
         for (int z = minZ; z < maxZ; z++)
             for (int y = minY; y < maxY; y++)
                 for (int x = minX; x < maxX; x++)
@@ -490,21 +327,6 @@ class OverlappingModel : Model
                 }
 
         return true;
-    }
-
-    protected int ID_N(int x, int y, int z)
-    {
-        return x + y * N * N + z * N;
-    }
-
-    protected int[] FromID_N(int ID_N)
-    {
-        int y = ID_N / (N * N);
-        ID_N -= y * (N * N);
-        int x = ID_N % N;
-        int z = ID_N / N;
-
-        return new int[] { x, y, z };
     }
 
     private void PrintInputMap(int[][][] inputMap)

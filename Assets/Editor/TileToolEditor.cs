@@ -30,7 +30,6 @@ public class TileToolEditor : Editor
             return;
 
         GUIStyle style = new GUIStyle(GUI.skin.button);
-        //scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(200), GUILayout.Height(500));
         for (int i = 0; i < Mathf.CeilToInt(tileToolManager.tiles.Length / 3f); i++)
         {
             GUILayout.BeginHorizontal();
@@ -52,7 +51,6 @@ public class TileToolEditor : Editor
             }
             GUILayout.EndHorizontal();
         }
-        //GUILayout.EndScrollView();
     }
 
     protected virtual void OnSceneGUI()
@@ -70,7 +68,6 @@ public class TileToolEditor : Editor
                 tileToolManager.ChooseFace(rHit);
                 TileToolWindow.OnFaceChange(rHit);
                 SceneView.RepaintAll();
-
             }
         }
     }
@@ -86,10 +83,5 @@ public class TileToolEditor : Editor
         options[5] = GUILayout.MaxHeight(100f);
 
         return options;
-    }
-
-    private void SaveToXML()
-    {
-
     }
 }

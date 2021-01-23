@@ -4,10 +4,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// TODO: remove overlap
+
 public class InfinityGenerator : MonoBehaviour
 {
     public Transform player;
-    //public GameObject chunkIndicator;
     public int chunkSize = 5;
     public int chunkDepth = 5;
     public string setName = "city";
@@ -162,12 +163,6 @@ public class InfinityGenerator : MonoBehaviour
         Chunk.chunkDepth = chunkDepth;
         Chunk.tileSize = tileSize;
 
-        /*Chunk a = new Chunk(currentX, currentZ);
-        chunksDictionary.Add((currentX, currentZ), a);*/
-        //chunkIndicator = Instantiate(chunkIndicator, Vector3.zero, Quaternion.identity);
-        //chunkIndicator.transform.localScale = new Vector3(chunkWorldSize, 1f, chunkWorldSize) * 0.1f;
-        //TeleportChunkIndicator();
-
         currentRoundedCamPos = RoundCamPos();
         chunkStack = new (int, int)[generationRadius * generationRadius * 4];
 
@@ -184,8 +179,6 @@ public class InfinityGenerator : MonoBehaviour
             currentZ++;
         if (Input.GetKeyDown(KeyCode.DownArrow))
             currentZ--;
-
-        //TeleportChunkIndicator();
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -210,17 +203,10 @@ public class InfinityGenerator : MonoBehaviour
         }
     }
 
-    
-
     public void ReloadScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-
-    /*public void TeleportChunkIndicator()
-    {
-        chunkIndicator.transform.position = new Vector3(currentX * chunkSize * tileSize, 0f, currentZ * chunkSize * tileSize) + new Vector3(chunkSize * tileSize - tileSize, 0f, chunkSize * tileSize - tileSize) * 0.5f;
-    }*/
 
     private Vector3 RoundCamPos()
     {

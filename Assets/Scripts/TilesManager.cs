@@ -22,8 +22,6 @@ public static class TilesManager
         }
         else
             LoadGameObjectTiles(setName);
-
-
     }
 
     private static bool ReadData(string setName)
@@ -133,7 +131,6 @@ public static class TilesManager
 
             for (int j = 0; j < 3; j++)
             {
-                /// TODO: IT DOES NOT WORK? "I" TYPE IS ROTATED TWICE
                 // CHECK IF TILE IS "I" TYPE - ROTATE ONLY ONCE
                 rotationTile = RotateTile(rotationTile);
                 Tile reflectionTile = null;
@@ -158,8 +155,6 @@ public static class TilesManager
 
         Quaternion rotation = tile._rotation;
         float rotationY = 0f;
-
-        //Debug.Log("rotation.eulerAngles.y: " + rotation.eulerAngles.y);
 
         if (tile._tileValues[0] == tile._tileValues[1] && tile._tileValues[4] == tile._tileValues[5] && tile._tileValues[0] != tile._tileValues[4]) // if type I
         {
@@ -202,13 +197,6 @@ public static class TilesManager
                 return RotateTile(RotateTile(RotateTile(tile)));
             return RotateTile(tile);
         }
-
-        //GameObject reflectedTileGameObject = Object.Instantiate(tile._tileGameObject, Vector3.zero, tile._tileGameObject.transform.rotation);
-        //reflectedTileGameObject.transform.localScale = new Vector3(1f, 1f, -1f);
-        //Object.Destroy(reflectedTileGameObject);
-
-        
-
 
         byte[] tileValues = new byte[6];
         tileValues[0] = tile._tileValues[1];

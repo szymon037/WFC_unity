@@ -28,10 +28,9 @@ public class WFC_Generator : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    /// TODO: rest of constructor's arguments
-    public static void GenerateOverlapping(Vector3Int dimensions, int tileSize, int N, int N_depth, bool processTiles, Tile[][][] input, Tile[] tiles, Vector3 offset, bool overlapTileCreation, Transform parent)
+    public static void GenerateOverlapping(Vector3Int dimensions, int tileSize, int N, int N_depth, bool processTiles, Tile[][][] input, Vector3 offset, bool overlapTileCreation, Transform parent)
     {
-        OverlappingModel om = new OverlappingModel(dimensions.x, dimensions.y, dimensions.z, tileSize, false, N, N_depth, processTiles, input, tiles, overlapTileCreation, parent);
+        OverlappingModel om = new OverlappingModel(dimensions.x, dimensions.y, dimensions.z, tileSize, false, N, N_depth, processTiles, input, overlapTileCreation, parent);
         om.offset = offset;
         om.Solve();
         om.GenerateAllTiles();
@@ -43,7 +42,5 @@ public class WFC_Generator : MonoBehaviour
         TiledModel tm = new TiledModel(dimensions.x, dimensions.y, dimensions.z, tileSize, seamless, processTiles, setName, inputMap, parent);
         tm.Solve();
         outputTransform = tm.outputTransform;
-
     }
-
 }

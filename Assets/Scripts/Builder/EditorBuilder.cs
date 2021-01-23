@@ -7,10 +7,8 @@ using UnityEngine;
 public class EditorBuilder : MonoBehaviour
 {
     public Vector3Int dimensions = Vector3Int.zero;
-    //public GameObject[][][] outputMap;
-    //public int[][][] outputMap;
     public Tile[][][] outputMap;
-    public Material transparentMat; ///TODO: load material from resources
+    public Material transparentMat; /// TODO: load material from resources
     [HideInInspector] public Transform WFC_output;
     [HideInInspector] public GameObject currentTileGO;
     [HideInInspector] public Tile[] tiles;
@@ -23,7 +21,6 @@ public class EditorBuilder : MonoBehaviour
     private GameObject highlightCurrentTileGO = null;
     private Vector3 invisiblePos = new Vector3(-999f, 0f, 0f);
     private int currentTileIndex = 0;
-    //private Tile currentTile
 
     /// WFC SETTINGS
     [HideInInspector] public bool seamless = false;
@@ -113,12 +110,7 @@ public class EditorBuilder : MonoBehaviour
         {
             outputMap[x] = new Tile[dimensions.y][];
             for (int y = 0; y < dimensions.y; y++)
-            {
                 outputMap[x][y] = new Tile[dimensions.z];
-
-                /*for (int z = 0; z < dimensions.z; z++)
-                    outputMap[x][y][z] = null;*/
-            }
         }
 
     }
@@ -183,7 +175,6 @@ public class EditorBuilder : MonoBehaviour
         outputMap[id.x][id.y][id.z] = tiles[currentTileIndex];
     }
 
-    // TODO: FIX DestroyTile
     public void DestroyTile(RaycastHit rHit)
     {
         if (rHit.transform == null || outputMap == null || rHit.transform.position.y < 0f)
@@ -227,10 +218,7 @@ public class EditorBuilder : MonoBehaviour
 
         Tile rotationTile = TilesManager.RotateTile(tiles[currentTileIndex]);
         if (rotationTile == null)
-        {
-            //Debug.Log("could not rotate");
             return;
-        }
 
         tiles[currentTileIndex] = rotationTile;
         highlightCurrentTileGO.transform.rotation = tiles[currentTileIndex]._rotation;
@@ -249,9 +237,7 @@ public class EditorBuilder : MonoBehaviour
             Debug.Log("Output size is smaller than input! Modyfing output size.");
             outputSize = new Vector3Int(Math.Max(outputSize.x, outputMap.Length), Math.Max(outputSize.y, outputMap[0].Length), Math.Max(outputSize.z, outputMap[0][0].Length));
         }
-        //Debug.Log("builder");
-        //PrintInputMap();
-        WFC_Generator.GenerateOverlapping(outputSize, tileSize, N, N_depth, processTiles, outputMap, tiles, offset, overlapTileCreation, transform);
+        WFC_Generator.GenerateOverlapping(outputSize, tileSize, N, N_depth, processTiles, outputMap, offset, overlapTileCreation, transform);
         WFC_output = WFC_Generator.outputTransform;
     }
 

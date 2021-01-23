@@ -7,7 +7,6 @@ using UnityEditor;
 public class EditorInput : Editor
 {
     private EditorBuilder editorBuilder;
-    private Vector2 scrollPosition;
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
@@ -31,7 +30,6 @@ public class EditorInput : Editor
             return;
 
         GUIStyle style = new GUIStyle(GUI.skin.button);
-        //scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(200), GUILayout.Height(500));
         for (int i = 0; i < Mathf.CeilToInt(editorBuilder.tiles.Length / 3f); i++)
         {
             GUILayout.BeginHorizontal();
@@ -52,17 +50,11 @@ public class EditorInput : Editor
             }
             GUILayout.EndHorizontal();
         }
-        //GUILayout.EndScrollView();
         
     }
 
     protected virtual void OnSceneGUI()
     {
-        /*if (Selection.activeGameObject == editorBuilder.gameObject)
-            Tools.hidden = true;
-        else
-            Tools.hidden = false;*/
-
         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
         var e = Event.current;
         if ((e.type == EventType.MouseDown || e.type == EventType.MouseMove) && e.type != EventType.MouseDrag)

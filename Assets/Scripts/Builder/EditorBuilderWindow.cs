@@ -47,14 +47,5 @@ public class EditorBuilderWindow : EditorWindow
 
         GUIContent overlapTileCreationContent = new GUIContent("Overlap Creation", "Creation mode of ");
         editorBuilder.overlapTileCreation = EditorGUILayout.Toggle(overlapTileCreationContent, editorBuilder.overlapTileCreation);
-
-        // overlap in tile creation
-
-        /*EditorGUILayout.Space();
-        GUILayout.Label("Editor Settings:", EditorStyles.boldLabel);
-        color?
-        */
-
-
     }
 }

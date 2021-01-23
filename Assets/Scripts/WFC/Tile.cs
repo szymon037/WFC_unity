@@ -12,7 +12,6 @@ public class Tile
     public byte[] _tileValues = new byte[6];
     public long _index;
     public GameObject _tileGameObject = null;
-    //public Matrix4x4 _transform = Matrix4x4.identity;
     public Quaternion _rotation = Quaternion.identity;
     public Vector3 _scale = Vector3.one;
     public string _tileName;  // original name, not changed with rotation or (Clone)
@@ -51,12 +50,6 @@ public class Tile
         _scale = tile._scale;
         _ground = tile._ground;
         _ceiling = tile._ceiling;
-        /*Debug.Log(_tileGameObjectName);
-        for (int i = 0; i < _adjacencies[0].Length; i++)
-        {
-            Debug.Log(tile._adjacencies[0][i]);
-        }*/
-        //_stringAdjacencies = tile._stringAdjacencies;
     }
 
     public Tile(float frequencyHint, GameObject tileGameObject, byte[] tileValues, string tileGameObjectName, float rotation, float scale, bool ground, bool ceiling)
@@ -68,7 +61,6 @@ public class Tile
         _ground = ground;
         _ceiling = ceiling;
 
-        //Debug.Log("Tile.transform.rotation BEFORE CHANGE: " + _transform.rotation.eulerAngles.ToString());
         scale = Mathf.Sign(scale);
         _rotation *= Quaternion.Euler(Vector3.up * rotation);
 
@@ -80,9 +72,6 @@ public class Tile
             x = scale;
 
         _scale = new Vector3(x, 1f, z);
-        //_transform = rotMatrix * scaleMatrix;
-        //Debug.Log("Tile.rotation: " + rotation);
-        //Debug.Log("Tile.transform.rotation: " + _transform.rotation.eulerAngles.ToString());
     }
 
     public Tile(GameObject tileGameObject)

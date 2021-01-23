@@ -19,9 +19,6 @@ public class TileToolManager : MonoBehaviour
     private Vector3 spawnPos = Vector3.zero;
     public static TextMeshProUGUI[] textFields = new TextMeshProUGUI[6];
 
-
-
-
     private void Init()
     {
         DestroyImmediate(currentTileGO);
@@ -84,8 +81,6 @@ public class TileToolManager : MonoBehaviour
                 textFields[5].transform.LookAt(textFields[5].transform.position + Vector3.forward);
             }
         }
-
-
     }
 
     public void ChooseFace(RaycastHit rHit)
@@ -101,8 +96,6 @@ public class TileToolManager : MonoBehaviour
         Vector3 cubePos = rHit.transform.position;
         highlightPlane.transform.position = cubePos + rHit.normal * tileSize * 0.51f;
         highlightPlane.transform.LookAt(highlightPlane.transform.position + rHit.normal);
-
-        // OnFaceChange
     }
 
     public void OnTilePrefabChange(int index)

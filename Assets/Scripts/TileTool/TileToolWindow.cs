@@ -1,4 +1,5 @@
 ﻿///TODO: przenieść ten skrypt do folderu Editor
+///TODO DODAĆ OPISY DO PÓL
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,7 +30,6 @@ public class TileToolWindow : EditorWindow
     public static void Init(TileToolManager tileTool)
     {
         tileToolManager = tileTool;
-        // Get existing open window or if none, make a new one:
         window = (TileToolWindow)EditorWindow.GetWindow(typeof(TileToolWindow));
         window.Show();
     }
@@ -77,13 +77,6 @@ public class TileToolWindow : EditorWindow
 
         if (GUILayout.Button("--"))
             maxIndicesNr--;
-
-        /*if (GUILayout.Button("Save tile changes"))
-            SaveTileChanges();*/
-
-        
-
-
     }
 
     public static void OnTilePrefabChange(int index)

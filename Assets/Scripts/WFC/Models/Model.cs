@@ -229,6 +229,4 @@ public abstract class Model
 
     public abstract void GenerateOutput();
     public abstract bool OnBorder(int x, int y, int z);
-
-
 }
