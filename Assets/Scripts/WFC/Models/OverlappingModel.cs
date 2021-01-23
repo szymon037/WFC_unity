@@ -285,9 +285,9 @@ class OverlappingModel : Model
                 for (int i_x = 0; i_x < N; i_x++)
                     map[i_y * N * N + i_z * N + i_x] = indexMap[(x + i_x) % W, (y + i_y) % D, (z + i_z) % L];
 
-        bool ground = (y == 0) ? true : false;
+        //bool ground = (y == 0) ? true : false;
 
-        return new Tile(map, 0f, 1f, ground);
+        return new Tile(map, 0f, 1f/*, ground*/);
     }
     // L - 0, R - 1, U - 2, D - 3, F - 4, B - 5
 
@@ -320,7 +320,7 @@ class OverlappingModel : Model
                 }
             }
 
-            /*Vector3 vertOffset = tileoffset + Vector3.up * (N_depth + 1) * tileSize;
+            Vector3 vertOffset = tileoffset + Vector3.up * (N_depth + 1) * tileSize;
             for (int j = 0; j < tiles[i]._tileAdjacencies[aID].Length; j++)
             {
                 for (int z = 0; z < N; z++)
@@ -339,7 +339,7 @@ class OverlappingModel : Model
                     }
                 }
                 vertOffset += Vector3.up * (N_depth + 1) * tileSize;
-            }*/
+            }
 
             tileoffset += Vector3.right * (N + 1) * tileSize;
         }

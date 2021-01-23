@@ -75,15 +75,8 @@ public class Cell
 
     public void ChooseTile(int tileIndex = -1)
     {
-        //Debug.Log("Choose tile: " + _x + " " + _y + " " + _z);
-
         ChooseCeiling();
-        if (Model.floorCheck[_x, _z])
-        {
-            //Debug.Log("Floor exists: " + _x + " " + _z);
             BanGroundTiles();
-            //Debug.Log("Possibilities: " + _possibilities);
-        }
 
 
         if (tileIndex == -1)
@@ -201,6 +194,9 @@ public class Cell
 
     private void BanGroundTiles()
     {
+        if (!Model.floorCheck[_x, _z])
+            return;
+
         for (int i = 0; i < _coefficients.Length; i++)
             if (Model.tiles[i]._ground && i != _tileIndex)
                 RemoveTile(i);

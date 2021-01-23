@@ -20,11 +20,11 @@ public class Tile
     public bool _ceiling;
     public Tile() { }
 
-    public Tile(byte[] values, float rotation, float scale, bool ground = false)
+    public Tile(byte[] values, float rotation, float scale/*, bool ground = false*/)
     {
         _tileValues = values;
-        _ground = ground;
-        
+        //_ground = ground;
+        _ceiling = true;
         scale = Mathf.Sign(scale);
         _rotation *= Quaternion.Euler(Vector3.up * rotation);
 
