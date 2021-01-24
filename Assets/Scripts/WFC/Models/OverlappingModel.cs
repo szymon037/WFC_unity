@@ -1,7 +1,4 @@
-﻿/// TODO:
-/// - tiles processing
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,7 +15,6 @@ class OverlappingModel : Model
 
     public OverlappingModel(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, int N, int N_depth, bool tileProcessing, Tile[][][] inputMap, bool overlapTileCreation, Transform parent = null) : base(gridWidth, gridDepth, gridLength, tileSize, seamless, parent)
     {
-
         W = inputMap.Length;        // x
         D = inputMap[0].Length;     // y   
         L = inputMap[0][0].Length;  // z
@@ -44,7 +40,7 @@ class OverlappingModel : Model
 
                     for (int c = 0; c < tilesList.Count; c++)
                     {
-                        if (currentTile.GetName() == tilesList[c].GetName()) /// TODO: NULL (CAUSE: SOLUTION NOT FOUND IN TILED)
+                        if (currentTile.GetName() == tilesList[c].GetName())
                             break;
 
                         ++i;
@@ -220,7 +216,7 @@ class OverlappingModel : Model
                         GameObject go = Object.Instantiate(tilesList[grid[id].GetTile()._tileValues[0]]._tileGameObject, new Vector3(x, y, z) * tileSize + offset, tilesList[grid[id].GetTile()._tileValues[0]]._rotation, outputTransform);
                         go.transform.localScale = tilesList[grid[id].GetTile()._tileValues[0]]._scale;
                     }
-                    else /// TODO: CHECK IF THIS TILE (x2, y2, z2) IS NULL AS WELL
+                    else
                     {
                         int x2 = Mathf.Min(x, gridWidth - N);
                         int y2 = Mathf.Min(y, gridDepth - N_depth);
@@ -232,6 +228,9 @@ class OverlappingModel : Model
 
                         id = ID(x2, y2, z2);
                         int t_id = y_id * N * N + z_id * N + x_id;
+
+                        if (grid[id].GetTile() == null)
+                            return;
 
                         GameObject go = Object.Instantiate(tilesList[grid[id].GetTile()._tileValues[t_id]]._tileGameObject, new Vector3(x, y, z) * tileSize + offset, tilesList[grid[id].GetTile()._tileValues[t_id]]._rotation, outputTransform);
                         go.transform.localScale = tilesList[grid[id].GetTile()._tileValues[t_id]]._scale;

@@ -25,7 +25,6 @@ public abstract class Model
     public static int groundIndex = -1;
     public static bool[,] floorCheck;
     ///TODO: clearing whole model on solve (so creating new Model is not needed)
-    ///TODO: extrnal tile creator and processor - needed in infinity generator
 
     public Model(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, Transform parent = null)
     {

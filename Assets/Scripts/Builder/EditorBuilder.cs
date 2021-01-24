@@ -8,7 +8,7 @@ public class EditorBuilder : MonoBehaviour
 {
     public Vector3Int dimensions = Vector3Int.zero;
     public Tile[][][] outputMap;
-    public Material transparentMat; /// TODO: load material from resources
+    private Material transparentMat;
     [HideInInspector] public Transform WFC_output;
     [HideInInspector] public GameObject currentTileGO;
     [HideInInspector] public Tile[] tiles;
@@ -36,6 +36,8 @@ public class EditorBuilder : MonoBehaviour
     {
         while (transform.childCount > 0)
             DestroyImmediate(transform.GetChild(0).gameObject);
+
+        transparentMat = Resources.Load<Material>("TransparentMaterial");
 
         // Start objects check
         if (collidersParent == null)
@@ -252,7 +254,9 @@ public class EditorBuilder : MonoBehaviour
     }
     public void LoadTiles()
     {
-        TilesManager.LoadTilesTiled(tilesetName, false);
+        if (!TilesManager.LoadTilesTiled(tilesetName, false))
+            return;
+
         tiles = new Tile[TilesManager.tilesTiled.Length];
         tileSize = (TilesManager.tileSize <= 0) ? 2 : TilesManager.tileSize;
 

@@ -30,7 +30,6 @@ class TiledModel : Model
     public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool processTiles, string setName, int[][] neighbourCells, Transform parent) : base(gridWidth, gridLength, gridDepth, tileSize, false, parent)
     {
         chunkGeneration = true;
-        /// TODO: process tiles in infinity mode only once
         this.tileSize = tileSize;
         if (setName != null)
             TilesManager.LoadTilesTiled(setName, processTiles);
@@ -126,8 +125,9 @@ class TiledModel : Model
                     for (int i = 0; i < tiles.Length; i++)
                         if (inputMap[x][y][z] != null && inputMap[x][y][z].GetName() == tiles[i].GetName())
                         {
+
                             int index = ID(x, y, z);
-                            if (grid[index]._entropy > 0f) // TODO: same tile is found twice. fix this
+                            if (grid[index]._entropy > 0f)
                                 grid[index].ChooseTile(i);
 
                         }

@@ -1,6 +1,4 @@
-﻿///TODO: przenieść ten skrypt do folderu Editor
-///TODO DODAĆ OPISY DO PÓL
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -37,10 +35,21 @@ public class TileToolWindow : EditorWindow
     void OnGUI()
     {
         string tileName = (tileToolManager != null && tileToolManager.tiles != null && tileIndex > -1 && tileIndex < tileToolManager.tiles.Length) ? tileToolManager.tiles[tileIndex]._tileGameObject.name : "None";
-        EditorGUILayout.LabelField("Prefab name: ", tileName);
-        EditorGUILayout.LabelField("Face selected: ", faceName);
-        EditorGUILayout.LabelField("Current face indices: ", faceIndices);
-        weight = Mathf.Max(0f, EditorGUILayout.FloatField("Weight", weight));
+
+        GUIContent prefabNameContent1 = new GUIContent("Prefab name: ", "Name of the loaded prefab");
+        GUIContent prefabNameContent2 = new GUIContent(tileName);
+        EditorGUILayout.LabelField(prefabNameContent1, prefabNameContent2);
+
+        GUIContent selectedFaceContent1 = new GUIContent("Selected face: ", "Currently selected face - chosen indices will be assigned to this face");
+        GUIContent selectedFaceContent2 = new GUIContent(faceName);
+        EditorGUILayout.LabelField(selectedFaceContent1, selectedFaceContent2);
+
+        GUIContent currentFaceIndicesContent1 = new GUIContent("Current face indices: ", "Indices assigned to selected face; selected face will be adjacent to other faces with at least one same index");
+        GUIContent currentFaceIndicesContent2 = new GUIContent(faceIndices);
+        EditorGUILayout.LabelField(currentFaceIndicesContent1, currentFaceIndicesContent2);
+
+        GUIContent weightContent = new GUIContent("Frequency", "Frequency/weight of current tile: it decides how often will this tile appear");
+        weight = Mathf.Max(0f, EditorGUILayout.FloatField(weightContent, weight));
 
         //indexSelection = GUILayout.Toolbar(indexSelection, new string[] { "Add", "Remove" });
 
@@ -112,7 +121,6 @@ public class TileToolWindow : EditorWindow
 
         faceIndex = directionsToIndexDictionary[rHit.normal];
         UpdateFaceIndices();
-
     }
 
     private static void UpdateFaceIndices()

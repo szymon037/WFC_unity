@@ -12,8 +12,20 @@ public static class TilesManager
     public static Tile[] tilesTiled = null;
     public static Tile[] tilesOverlap = null;
     public static int tileSize = 0;
-    public static void LoadTilesTiled(string setName, bool processTiles)
+    public static bool LoadTilesTiled(string setName, bool processTiles)
     {
+        if (setName == null || setName == "")
+        {
+            Debug.Log("Tilest name not specified!");
+            return false;
+        }
+
+        if (!Directory.Exists(Application.dataPath + "\\Resources\\Tiles\\" + setName))
+        {
+            Debug.LogWarning("There is no such tile set: " + setName + " in Resources folder");
+            return false;
+        }
+
         if (ReadData(setName))
         {
             if (processTiles)
@@ -22,6 +34,8 @@ public static class TilesManager
         }
         else
             LoadGameObjectTiles(setName);
+
+        return true;
     }
 
     private static bool ReadData(string setName)
@@ -136,10 +150,9 @@ public static class TilesManager
                 Tile reflectionTile = null;
                 if (rotationTile != null)
                     reflectionTile = ReflectTile(rotationTile);
-
-                if (rotationTile != null)
+                if (rotationTile != null && !newTiles.Exists(t => t.GetName() == rotationTile.GetName()) && tilesTiled[i].GetName() != rotationTile.GetName())
                     newTiles.Add(rotationTile);
-                if (reflectionTile != null)
+                if (reflectionTile != null && !newTiles.Exists(t => t.GetName() == reflectionTile.GetName()) && tilesTiled[i].GetName() != reflectionTile.GetName())
                     newTiles.Add(reflectionTile);
             }
         }
@@ -147,7 +160,6 @@ public static class TilesManager
         tilesTiled = tilesTiled.Concat(newTiles).ToArray();
     }
 
-    /// TODO: make rotation possible for tiles without init tileValues (tiles without rules.xml)
     public static Tile RotateTile(Tile tile)
     {
         if (tile == null || (tile._tileValues[0] == tile._tileValues[1] && tile._tileValues[0] == tile._tileValues[4] && tile._tileValues[0] == tile._tileValues[5]))
@@ -228,9 +240,7 @@ public static class TilesManager
 
     public static void LoadGameObjectTiles(string setName)
     {
-        /// TODO: check if tileset exists (simple null check is not enough)
-        if (setName == null || setName == "")
-            Debug.Log("Tilest name not specified!");
+        
         GameObject[] gameObjects;
         gameObjects = Resources.LoadAll<GameObject>("Tiles\\" + setName);
         tilesTiled = new Tile[gameObjects.Length];
