@@ -11,7 +11,7 @@ class TiledModel : Model
     {
         this.tileSize = tileSize;
         if (setName != null)
-            TilesManager.LoadTilesTiled(setName, processTiles);
+            TilesManager.LoadTilesTiled(setName, processTiles, false);
         if (TilesManager.tilesTiled == null)
         {
             Debug.LogError("Could not load tiles!");
@@ -27,18 +27,12 @@ class TiledModel : Model
     }
 
     // infinite chunk generation
-    public TiledModel(int gridWidth, int gridLength, int gridDepth, int tileSize, bool processTiles, string setName, int[][] neighbourCells, Transform parent) : base(gridWidth, gridLength, gridDepth, tileSize, false, parent)
+    public TiledModel(int gridWidth, int gridLength, int gridDepth, int[][] neighbourCells, Transform parent) : base(gridWidth, gridLength, gridDepth, 0, false, parent)
     {
         chunkGeneration = true;
-        this.tileSize = tileSize;
-        if (setName != null)
-            TilesManager.LoadTilesTiled(setName, processTiles);
-        if (TilesManager.tilesTiled == null)
-        {
-            Debug.LogError("Could not load tiles!");
-            return;
-        }
+        
         tiles = TilesManager.tilesTiled;
+        base.tileSize = TilesManager.tileSize;
         ///
         InitGrid();
         Init();

@@ -14,10 +14,10 @@ public class TileToolEditor : Editor
         DrawDefaultInspector();
         tileToolManager = (TileToolManager)target;
 
-        if (GUILayout.Button("Open window"))
+        if (GUILayout.Button("Tile Settings"))
             TileToolWindow.Init(tileToolManager);
 
-        if (GUILayout.Button("Load tileset"))
+        if (GUILayout.Button("Load Tileset"))
         {
             tileToolManager.LoadTiles();
             TileToolWindow.Init(tileToolManager);

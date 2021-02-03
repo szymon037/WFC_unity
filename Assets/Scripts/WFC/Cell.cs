@@ -14,16 +14,18 @@ public class Cell
     public int _possibilities;
     public int[][] _compatible = new int[Model.tiles.Length][];
     private bool _ceiling;
+    private bool _ground;
     private int _x;
     private int _y;
     private int _z;
 
-    public Cell(int index, float entropy, int[][] compatible, bool ceiling, int x, int z, int y)
+    public Cell(int index, float entropy, int[][] compatible, bool ground, bool ceiling, int x, int z, int y)
     {
         _index = index;
         _entropy = entropy;
         _possibilities = Model.tiles.Length;
         _ceiling = ceiling;
+        _ground = ground;
         _x = x;
         _z = z;
         _y = y;
@@ -45,6 +47,7 @@ public class Cell
 
     public void ChooseTile(int tileIndex = -1)
     {
+        //ChooseGround();
         ChooseCeiling();
         BanGroundTiles();
 
@@ -153,6 +156,16 @@ public class Cell
 
         for (int i = 0; i < _coefficients.Length; i++)
             if (!Model.tiles[i]._ceiling)
+                RemoveTile(i);
+    }
+
+    private void ChooseGround()
+    {
+        if (!_ground)
+            return;
+
+        for (int i = 0; i < _coefficients.Length; i++)
+            if (!Model.tiles[i]._ground)
                 RemoveTile(i);
     }
 

@@ -28,7 +28,7 @@ public class TileToolWindow : EditorWindow
     public static void Init(TileToolManager tileTool)
     {
         tileToolManager = tileTool;
-        window = (TileToolWindow)EditorWindow.GetWindow(typeof(TileToolWindow));
+        window = (TileToolWindow)EditorWindow.GetWindow(typeof(TileToolWindow), false, "Tile Settings");
         window.Show();
     }
 
@@ -36,7 +36,7 @@ public class TileToolWindow : EditorWindow
     {
         string tileName = (tileToolManager != null && tileToolManager.tiles != null && tileIndex > -1 && tileIndex < tileToolManager.tiles.Length) ? tileToolManager.tiles[tileIndex]._tileGameObject.name : "None";
 
-        GUIContent prefabNameContent1 = new GUIContent("Prefab name: ", "Name of the loaded prefab");
+        GUIContent prefabNameContent1 = new GUIContent("Tile name: ", "Name of the loaded tile");
         GUIContent prefabNameContent2 = new GUIContent(tileName);
         EditorGUILayout.LabelField(prefabNameContent1, prefabNameContent2);
 
@@ -81,11 +81,14 @@ public class TileToolWindow : EditorWindow
             GUILayout.EndHorizontal();
         }
 
+        GUILayout.BeginHorizontal();
         if (GUILayout.Button("++"))
             maxIndicesNr++;
 
         if (GUILayout.Button("--"))
             maxIndicesNr--;
+        GUILayout.EndHorizontal();
+
     }
 
     public static void OnTilePrefabChange(int index)

@@ -91,20 +91,21 @@ public class Tile
 
     public void CalculateBitValue()
     {
-        bool zero = true;
+        bool isEmpty = true;
         for (int i = 0; i < 6; i++)
         {
             int bitValue = 0;
             for (int j = 0; j < _edgeAdjacencies[i].Length; j++)
             {
                 bitValue |= 1 << _edgeAdjacencies[i][j];
-                zero &= (_edgeAdjacencies[i][j] == 0);
+                Debug.Log("bitValue: " + (byte)bitValue);
+                isEmpty &= (_edgeAdjacencies[i][j] == 0);
                 _ceiling |= (i == 2) & (_edgeAdjacencies[i][j] == 0);
                 _ground |= (i == 3) & (_edgeAdjacencies[i][j] == 0);
             }
             _tileValues[i] = (byte)bitValue;
         }
-        _ground &= !zero;
+        _ground &= !isEmpty;
 
     }
 

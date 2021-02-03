@@ -152,12 +152,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9c54face86fef44ab0a537c3b446a0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1193710763}
-  chunkSize: 5
-  chunkDepth: 5
   setName: city
-  tileSize: 4
-  generationRadius: 2
+  chunkSide: 5
+  chunkHeight: 5
+  generationRadius: 4
 --- !u!4 &151097603
 Transform:
   m_ObjectHideFlags: 0

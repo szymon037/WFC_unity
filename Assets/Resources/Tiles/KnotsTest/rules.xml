@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<set>
+  <tiles tileSize="2">
+    <tile name="end1" frequency="1" L="0" R="0" U="0" D="0" F="9" B="0" />
+    <!--
+    <tile name="end2" frequency="1" L="0" R="0" U="0" D="0" F="1" B="0" />
+    -->
+  </tiles>
+</set>

@@ -12,19 +12,20 @@ public class EditorInput : Editor
         DrawDefaultInspector();
         editorBuilder = (EditorBuilder)target;
 
+        if (GUILayout.Button("Init Builder"))
+            editorBuilder.Init();
         if (GUILayout.Button("Load tileset"))
             editorBuilder.LoadTiles();
-        if (GUILayout.Button("Generate Grid/Reset"))
-            editorBuilder.Init();
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Generate Level"))
+        if (GUILayout.Button("Overlapping Generation"))
             editorBuilder.GenerateOverlapping();
-        if (GUILayout.Button("Autofill Level"))
+        if (GUILayout.Button("Tiled Generation (Autofill)"))
             editorBuilder.GenerateTiled();
-        if (GUILayout.Button("Advanced Settings"))
+        GUILayout.EndHorizontal();
+
+        if (GUILayout.Button("Advanced Options"))
             EditorBuilderWindow.Init(editorBuilder);
 
-        GUILayout.EndHorizontal();
 
         if (editorBuilder.tiles == null || editorBuilder.tiles.Length == 0)
             return;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ public class EditorBuilder : MonoBehaviour
 {
     public Vector3Int dimensions = Vector3Int.zero;
     public Tile[][][] outputMap;
+    int[] builderMap;
+
     private Material transparentMat;
     [HideInInspector] public Transform WFC_output;
     [HideInInspector] public GameObject currentTileGO;
@@ -21,6 +24,7 @@ public class EditorBuilder : MonoBehaviour
     private GameObject highlightCurrentTileGO = null;
     private Vector3 invisiblePos = new Vector3(-999f, 0f, 0f);
     private int currentTileIndex = 0;
+    [HideInInspector] public string saveFileName = string.Empty;
 
     /// WFC SETTINGS
     [HideInInspector] public bool seamless = false;
@@ -32,8 +36,10 @@ public class EditorBuilder : MonoBehaviour
     [HideInInspector] public int N_depth = 2;
     [HideInInspector] public Vector3Int outputSize = new Vector3Int(10, 1, 10);
     [HideInInspector] public bool overlapTileCreation = true;
+
     public void Init()
     {
+        currentTileIndex = 0;
         while (transform.childCount > 0)
             DestroyImmediate(transform.GetChild(0).gameObject);
 
@@ -108,14 +114,21 @@ public class EditorBuilder : MonoBehaviour
 
         // Output map init
         outputMap = new Tile[dimensions.x][][];
+        builderMap = new int[dimensions.x  * dimensions.y * dimensions.z];
         for (int x = 0; x < dimensions.x; x++)
         {
             outputMap[x] = new Tile[dimensions.y][];
             for (int y = 0; y < dimensions.y; y++)
+            {
                 outputMap[x][y] = new Tile[dimensions.z];
+                for (int z = 0; z < dimensions.z; z++)
+                    builderMap[ID(x, y, z)] = -1;
+            }
         }
 
     }
+
+    
 
     public void HighlightPrefabsManagement(RaycastHit rHit)
     {
@@ -175,6 +188,24 @@ public class EditorBuilder : MonoBehaviour
         GameObject collider = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\colliderPrefab"), spawnPos, Quaternion.identity, tile.transform);
         collider.transform.localScale *= tileSize;
         outputMap[id.x][id.y][id.z] = tiles[currentTileIndex];
+        builderMap[ID(id.x, id.y, id.z)] = currentTileIndex;
+    }
+
+    public void CreateTile(Vector3Int id, int tileID)
+    {
+        if (tileID < 0 || tiles == null || id.x < 0 || id.y < 0 || id.z < 0 ||
+            id.x >= dimensions.x || id.y >= dimensions.y || id.z >= dimensions.z)
+            return;
+
+        Vector3 spawnPos = id * tileSize;
+
+        currentTileGO = tiles[tileID]._tileGameObject;
+        GameObject tile = Instantiate(currentTileGO, spawnPos, tiles[tileID]._rotation, tilesParent.transform);
+        tile.name = currentTileGO.name + tile.transform.rotation.eulerAngles.ToString() + " " + tile.transform.localScale.ToString();
+        GameObject collider = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\colliderPrefab"), spawnPos, Quaternion.identity, tile.transform);
+        collider.transform.localScale *= tileSize;
+        outputMap[id.x][id.y][id.z] = tiles[tileID];
+        builderMap[ID(id.x, id.y, id.z)] = tileID;
     }
 
     public void DestroyTile(RaycastHit rHit)
@@ -190,6 +221,7 @@ public class EditorBuilder : MonoBehaviour
             return;
         
         outputMap[id.x][id.y][id.z] = null;
+        builderMap[ID(id.x, id.y, id.z)] = -1;
         DestroyImmediate(rHit.transform.parent.gameObject);
     }
 
@@ -254,7 +286,7 @@ public class EditorBuilder : MonoBehaviour
     }
     public void LoadTiles()
     {
-        if (!TilesManager.LoadTilesTiled(tilesetName, false))
+        if (!TilesManager.LoadTilesTiled(tilesetName, false, false))
             return;
 
         tiles = new Tile[TilesManager.tilesTiled.Length];
@@ -264,6 +296,74 @@ public class EditorBuilder : MonoBehaviour
         {
             tiles[i] = new Tile(TilesManager.tilesTiled[i]);
         }
+    }
+
+    public void SaveDataFile()
+    {
+        SaveData saveData = new SaveData();
+        saveData.tilesetName = tilesetName;
+        saveData.dimensions = new Vector3Json(dimensions.x, dimensions.y, dimensions.z);
+        saveData.seamless = seamless;
+        saveData.processTiles = processTiles;
+        saveData.offset = new Vector3Json(offset.x, offset.y, offset.z);
+        saveData.N = N;
+        saveData.N_depth = N_depth;
+        saveData.outputSize = new Vector3Json(outputSize.x, outputSize.y, outputSize.z);
+        saveData.overlapTileCreation = overlapTileCreation;
+        saveData.builderMap = builderMap;
+
+        string json = JsonUtility.ToJson(saveData);
+
+        string path = Application.dataPath + "\\Resources\\SaveFiles\\" + saveFileName + ".json";
+        
+        using (StreamWriter sw = File.CreateText(path))
+            sw.WriteLine(json);
+
+    }
+
+    public void LoadDataFile()
+    {
+        string json = Resources.Load<TextAsset>("SaveFiles\\" + saveFileName).text;
+        SaveData saveData = JsonUtility.FromJson<SaveData>(json);
+        tilesetName = saveData.tilesetName;
+        dimensions = saveData.dimensions;
+        seamless = saveData.seamless;
+        processTiles = saveData.processTiles;
+        offset = saveData.offset;
+        N = saveData.N;
+        N_depth = saveData.N_depth;
+        outputSize = saveData.outputSize;
+        overlapTileCreation = saveData.overlapTileCreation;
+        int[] newBuilderMap = saveData.builderMap;
+
+        LoadOutputMap(newBuilderMap);
+    }
+
+    public void LoadOutputMap(int[] newBuilderMap)
+    {
+        Init();
+        LoadTiles();
+
+        for (int i = 0; i < newBuilderMap.Length; i++)
+        {
+            int[] pos = FromID(i);
+            CreateTile(new Vector3Int(pos[0], pos[1], pos[2]), newBuilderMap[i]);
+        }
+    }
+
+    protected int ID(int x, int y, int z)
+    {
+        return x + y * dimensions.x * dimensions.z + z * dimensions.x;
+    }
+
+    public int[] FromID(int ID)
+    {
+        int y = ID / (dimensions.x * dimensions.z);
+        ID -= y * (dimensions.x * dimensions.z);
+        int x = ID % dimensions.x;
+        int z = ID / dimensions.x;
+
+        return new int[] { x, y, z };
     }
 
     private void PrintInputMap()
@@ -283,6 +383,8 @@ public class EditorBuilder : MonoBehaviour
         }
         Debug.Log(map);
     }
+
+
 
     private bool IsOutputEmpty()
     {

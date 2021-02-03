@@ -8,6 +8,7 @@ using TMPro;
 public class TileToolManager : MonoBehaviour
 {
     public int tileSize;
+    private int defaultTileSize = 2;
     public string tilesetName;
     [HideInInspector] public Tile[] tiles;
 
@@ -18,7 +19,6 @@ public class TileToolManager : MonoBehaviour
     private Vector3 invisiblePos = new Vector3(-999f, 0f, 0f);
     private Vector3 spawnPos = Vector3.zero;
     public static TextMeshProUGUI[] textFields = new TextMeshProUGUI[6];
-
     private void Init()
     {
         DestroyImmediate(currentTileGO);
@@ -105,9 +105,9 @@ public class TileToolManager : MonoBehaviour
     }
     public void LoadTiles()
     {
-        TilesManager.LoadTilesTiled(tilesetName, false);
+        TilesManager.LoadTilesTiled(tilesetName, false, true);
         tiles = new Tile[TilesManager.tilesTiled.Length];
-        tileSize = TilesManager.tileSize;
+        tileSize = (TilesManager.tileSize == 0) ? defaultTileSize : TilesManager.tileSize;
 
         for (int i = 0; i < TilesManager.tilesTiled.Length; i++)
             tiles[i] = new Tile(TilesManager.tilesTiled[i]);

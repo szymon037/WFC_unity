@@ -77,7 +77,7 @@ public abstract class Model
         {
             int[] coords = FromID(i);
 
-            grid[i] = new Cell(i, startEntropy, compatible, (coords[1] == gridDepth - 1), coords[0], coords[2], coords[1]);
+            grid[i] = new Cell(i, startEntropy, compatible, (coords[1] == 0), (coords[1] == gridDepth - 1), coords[0], coords[2], coords[1]);
         }
     }
 

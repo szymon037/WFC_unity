@@ -12,7 +12,7 @@ public static class TilesManager
     public static Tile[] tilesTiled = null;
     public static Tile[] tilesOverlap = null;
     public static int tileSize = 0;
-    public static bool LoadTilesTiled(string setName, bool processTiles)
+    public static bool LoadTilesTiled(string setName, bool processTiles, bool loadGameObjects)
     {
         if (setName == null || setName == "")
         {
@@ -28,6 +28,9 @@ public static class TilesManager
 
         if (ReadData(setName))
         {
+            if (loadGameObjects)
+                LoadGameObjectTiles(setName);
+
             if (processTiles)
                 ProcessTiles();
             CreateAdjacencies();
@@ -119,6 +122,7 @@ public static class TilesManager
             try
             {
                 adjacencies[i] = int.Parse(neighbours[i]);
+                Debug.Log("ParseStringAdjacencies: " + adjacencies[i]);
             }
             catch (FormatException)
             {
@@ -240,12 +244,16 @@ public static class TilesManager
 
     public static void LoadGameObjectTiles(string setName)
     {
-        
         GameObject[] gameObjects;
         gameObjects = Resources.LoadAll<GameObject>("Tiles\\" + setName);
-        tilesTiled = new Tile[gameObjects.Length];
+        List<Tile> tiles = new List<Tile>();
+        if (tilesTiled != null)
+            tiles = new List<Tile>(tilesTiled);
 
         for (int i = 0; i < gameObjects.Length; i++)
-            tilesTiled[i] = new Tile(gameObjects[i]);
+            if (!tiles.Exists(t => t._tileGameObject.name == gameObjects[i].name))
+                tiles.Add(new Tile(gameObjects[i]));
+
+        tilesTiled = tiles.ToArray();
     }
 }

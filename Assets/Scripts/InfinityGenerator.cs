@@ -4,24 +4,20 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// TODO: remove overlap
-
 public class InfinityGenerator : MonoBehaviour
 {
-    public Transform player;
-    public int chunkSize = 5;
-    public int chunkDepth = 5;
+    private Transform player;
     public string setName = "city";
-    public int tileSize = 4;
+    public int chunkSide = 5;
+    public int chunkHeight = 5;
+    private int tileSize = 4;
     public static Dictionary<(int, int), Chunk> chunksDictionary = new Dictionary<(int, int), Chunk>();
 
     public static int[,] chunkDir = new int[4, 2] { { -1, 0 }, { 1, 0 }, { 0, 1 }, { 0, -1 } }; // L R F B
     public static int[] opposite = new int[4] { 1, 0, 3, 2 };
 
     int currentX = 0, currentZ = 0;
-    public static int solveLimit = 20;
-    public static ModelType modelType = ModelType.Tiled;
-    public static GameObject[][][] outputTiledMap;
+    public static int solveLimit = 30;
 
     public static float chunkWorldSize;
     private Vector3 currentRoundedCamPos = Vector3.zero;
@@ -30,8 +26,6 @@ public class InfinityGenerator : MonoBehaviour
     private int generationRadius = 2;
     (int, int)[] chunkStack;
     private int chunkStackSize = 0;
-
-    public enum ModelType { Tiled, Overlapping };
 
     public class Chunk
     {
@@ -108,12 +102,7 @@ public class InfinityGenerator : MonoBehaviour
             Model model = null;
             do
             {
-                if (modelType == ModelType.Tiled)
-                    model = new TiledModel(chunkSize, chunkSize, chunkDepth, tileSize, true, setName, neighbours, chunkGO.transform);
-                /*else
-                    model = new OverlappingModel(chunkSize, chunkSize, chunkDepth, tileSize, 3, 1, false, outputTiledMap, neighbours, chunkGO.transform);*/
-
-                
+                model = new TiledModel(chunkSize, chunkSize, chunkDepth, neighbours, chunkGO.transform);
 
                 solved = model.Solve();
                 counter++;
@@ -147,20 +136,24 @@ public class InfinityGenerator : MonoBehaviour
     
     void Start()
     {
-        if (modelType == ModelType.Overlapping)
+        if (setName != null)
+            TilesManager.LoadTilesTiled(setName, true, false);
+        if (TilesManager.tilesTiled == null)
         {
-            TiledModel tm = new TiledModel(20, 20, 1, 2, true, true, setName);
-            tm.offset = new Vector3(0f, -10f, 0f);
-            tm.Solve();
-            outputTiledMap = tm.output;
+            Debug.LogError("Could not load tiles!");
+            return;
         }
 
-        chunkWorldSize = chunkSize * tileSize;
+        tileSize = TilesManager.tileSize;
+
+        player = Camera.main.transform;
+
+        chunkWorldSize = chunkSide * tileSize;
 
         chunksDictionary.Clear();
         Chunk.setName = setName;
-        Chunk.chunkSize = chunkSize;
-        Chunk.chunkDepth = chunkDepth;
+        Chunk.chunkSize = chunkSide;
+        Chunk.chunkDepth = chunkHeight;
         Chunk.tileSize = tileSize;
 
         currentRoundedCamPos = RoundCamPos();
