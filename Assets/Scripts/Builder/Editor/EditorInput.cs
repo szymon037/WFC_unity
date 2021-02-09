@@ -56,6 +56,9 @@ public class EditorInput : Editor
 
     protected virtual void OnSceneGUI()
     {
+        if (editorBuilder == null)
+            return;
+
         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
         var e = Event.current;
         if ((e.type == EventType.MouseDown || e.type == EventType.MouseMove) && e.type != EventType.MouseDrag)

@@ -19,6 +19,9 @@ public class EditorBuilderWindow : EditorWindow
 
     void OnGUI()
     {
+        if (editorBuilder == null)
+            return;
+
         GUILayout.Label("WFC settings:", EditorStyles.boldLabel);
         GUIContent processTilesContent = new GUIContent("Process tiles", "Generated levels will be seamless on edges");
         editorBuilder.processTiles = EditorGUILayout.Toggle(processTilesContent, editorBuilder.processTiles);
@@ -56,10 +59,10 @@ public class EditorBuilderWindow : EditorWindow
         editorBuilder.saveFileName = EditorGUILayout.TextField(saveDataContent, editorBuilder.saveFileName);
 
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Save"))
+        if (GUILayout.Button("Save File"))
             editorBuilder.SaveDataFile();
 
-        if (GUILayout.Button("Load"))
+        if (GUILayout.Button("Load File"))
             editorBuilder.LoadDataFile();
         GUILayout.EndHorizontal();
     }

@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Xml.Linq;
 using UnityEngine;
 
@@ -9,23 +11,23 @@ public class Tile
     public float _weight;
     public int[][] _tileAdjacencies = new int[6][];  // tile neighbours of this tile
     public int[][] _edgeAdjacencies = new int[6][];  // edge indices used for adjacency check
-    public byte[] _tileValues = new byte[6];
-    public long _index;
+    public int[] _tileValues = new int[6];
+    public BigInteger _index;
     public GameObject _tileGameObject = null;
-    public Quaternion _rotation = Quaternion.identity;
-    public Vector3 _scale = Vector3.one;
+    public UnityEngine.Quaternion _rotation = UnityEngine.Quaternion.identity;
+    public UnityEngine.Vector3 _scale = UnityEngine.Vector3.one;
     public string _tileName;  // original name, not changed with rotation or (Clone)
     public bool _ground;
     public bool _ceiling;
     public Tile() { }
 
-    public Tile(byte[] values, float rotation, float scale/*, bool ground = false*/)
+    public Tile(int[] values, float rotation, float scale/*, bool ground = false*/)
     {
         _tileValues = values;
         //_ground = ground;
         _ceiling = true;
         scale = Mathf.Sign(scale);
-        _rotation *= Quaternion.Euler(Vector3.up * rotation);
+        _rotation *= UnityEngine.Quaternion.Euler(UnityEngine.Vector3.up * rotation);
 
         float x = 1f, z = 1f;
         rotation = Mathf.Round(rotation);
@@ -34,7 +36,7 @@ public class Tile
         else
             z = scale;
 
-        _scale = new Vector3(x, 1f, z);
+        _scale = new UnityEngine.Vector3(x, 1f, z);
     }
 
     // tiled
@@ -52,7 +54,7 @@ public class Tile
         _ceiling = tile._ceiling;
     }
 
-    public Tile(float frequencyHint, GameObject tileGameObject, byte[] tileValues, string tileGameObjectName, float rotation, float scale, bool ground, bool ceiling)
+    public Tile(float frequencyHint, GameObject tileGameObject, int[] tileValues, string tileGameObjectName, float rotation, float scale, bool ground, bool ceiling)
     {
         _weight = frequencyHint;
         _tileGameObject = tileGameObject;
@@ -62,7 +64,7 @@ public class Tile
         _ceiling = ceiling;
 
         scale = Mathf.Sign(scale);
-        _rotation *= Quaternion.Euler(Vector3.up * rotation);
+        _rotation *= UnityEngine.Quaternion.Euler(UnityEngine.Vector3.up * rotation);
 
         float x = 1f, z = 1f;
         rotation = Mathf.Round(rotation);
@@ -71,7 +73,7 @@ public class Tile
         else
             x = scale;
 
-        _scale = new Vector3(x, 1f, z);
+        _scale = new UnityEngine.Vector3(x, 1f, z);
     }
 
     public Tile(GameObject tileGameObject)
@@ -98,12 +100,11 @@ public class Tile
             for (int j = 0; j < _edgeAdjacencies[i].Length; j++)
             {
                 bitValue |= 1 << _edgeAdjacencies[i][j];
-                Debug.Log("bitValue: " + (byte)bitValue);
                 isEmpty &= (_edgeAdjacencies[i][j] == 0);
                 _ceiling |= (i == 2) & (_edgeAdjacencies[i][j] == 0);
                 _ground |= (i == 3) & (_edgeAdjacencies[i][j] == 0);
             }
-            _tileValues[i] = (byte)bitValue;
+            _tileValues[i] = bitValue;
         }
         _ground &= !isEmpty;
 
@@ -144,11 +145,11 @@ public class Tile
 
     public void CalculateIndex(int tilesNumber)
     {
-        long power = 1;
+        BigInteger power = 1;
         for (int i = 0; i < _tileValues.Length; i++)
         {
             _index += _tileValues[_tileValues.Length - 1 - i] * power;
-            power *= tilesNumber;
+            power *= (BigInteger)tilesNumber;
         }
     }
 

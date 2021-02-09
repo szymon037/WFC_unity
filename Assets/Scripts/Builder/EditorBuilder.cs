@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+using UnityEditor;
 using UnityEngine;
 
 public class EditorBuilder : MonoBehaviour
 {
     public Vector3Int dimensions = Vector3Int.zero;
     public Tile[][][] outputMap;
-    int[] builderMap;
+    string[] tilesNames;
 
     private Material transparentMat;
     [HideInInspector] public Transform WFC_output;
@@ -40,6 +41,9 @@ public class EditorBuilder : MonoBehaviour
     public void Init()
     {
         currentTileIndex = 0;
+        if (tiles != null && tiles.Length > 0)
+            currentTileGO = tiles[currentTileIndex]._tileGameObject;
+
         while (transform.childCount > 0)
             DestroyImmediate(transform.GetChild(0).gameObject);
 
@@ -114,7 +118,7 @@ public class EditorBuilder : MonoBehaviour
 
         // Output map init
         outputMap = new Tile[dimensions.x][][];
-        builderMap = new int[dimensions.x  * dimensions.y * dimensions.z];
+        tilesNames = new string[dimensions.x  * dimensions.y * dimensions.z];
         for (int x = 0; x < dimensions.x; x++)
         {
             outputMap[x] = new Tile[dimensions.y][];
@@ -122,7 +126,7 @@ public class EditorBuilder : MonoBehaviour
             {
                 outputMap[x][y] = new Tile[dimensions.z];
                 for (int z = 0; z < dimensions.z; z++)
-                    builderMap[ID(x, y, z)] = -1;
+                    tilesNames[ID(x, y, z)] = string.Empty;
             }
         }
 
@@ -188,7 +192,7 @@ public class EditorBuilder : MonoBehaviour
         GameObject collider = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\colliderPrefab"), spawnPos, Quaternion.identity, tile.transform);
         collider.transform.localScale *= tileSize;
         outputMap[id.x][id.y][id.z] = tiles[currentTileIndex];
-        builderMap[ID(id.x, id.y, id.z)] = currentTileIndex;
+        tilesNames[ID(id.x, id.y, id.z)] = tiles[currentTileIndex].GetName();
     }
 
     public void CreateTile(Vector3Int id, int tileID)
@@ -199,13 +203,13 @@ public class EditorBuilder : MonoBehaviour
 
         Vector3 spawnPos = id * tileSize;
 
-        currentTileGO = tiles[tileID]._tileGameObject;
-        GameObject tile = Instantiate(currentTileGO, spawnPos, tiles[tileID]._rotation, tilesParent.transform);
+        currentTileGO = TilesManager.tilesTiled[tileID]._tileGameObject;
+        GameObject tile = Instantiate(currentTileGO, spawnPos, TilesManager.tilesTiled[tileID]._rotation, tilesParent.transform);
         tile.name = currentTileGO.name + tile.transform.rotation.eulerAngles.ToString() + " " + tile.transform.localScale.ToString();
         GameObject collider = Instantiate(Resources.Load<GameObject>("BuilderPrefabs\\colliderPrefab"), spawnPos, Quaternion.identity, tile.transform);
         collider.transform.localScale *= tileSize;
-        outputMap[id.x][id.y][id.z] = tiles[tileID];
-        builderMap[ID(id.x, id.y, id.z)] = tileID;
+        outputMap[id.x][id.y][id.z] = TilesManager.tilesTiled[tileID];
+        tilesNames[ID(id.x, id.y, id.z)] = TilesManager.tilesTiled[tileID].GetName();
     }
 
     public void DestroyTile(RaycastHit rHit)
@@ -221,7 +225,7 @@ public class EditorBuilder : MonoBehaviour
             return;
         
         outputMap[id.x][id.y][id.z] = null;
-        builderMap[ID(id.x, id.y, id.z)] = -1;
+        tilesNames[ID(id.x, id.y, id.z)] = string.Empty;
         DestroyImmediate(rHit.transform.parent.gameObject);
     }
 
@@ -310,6 +314,27 @@ public class EditorBuilder : MonoBehaviour
         saveData.N_depth = N_depth;
         saveData.outputSize = new Vector3Json(outputSize.x, outputSize.y, outputSize.z);
         saveData.overlapTileCreation = overlapTileCreation;
+
+        TilesManager.LoadTilesTiled(tilesetName, true, false);
+
+        int[] builderMap = new int[tilesNames.Length];
+        for (int i = 0; i < tilesNames.Length; i++)
+        {
+            builderMap[i] = -1;
+            if (tilesNames[i] == string.Empty)
+                continue;
+
+            for (int j = 0; j < TilesManager.tilesTiled.Length; j++)
+            {
+                if (TilesManager.tilesTiled[j].GetName() == tilesNames[i])
+                {
+                    builderMap[i] = j;
+                    break;
+                }
+            }
+
+        }
+
         saveData.builderMap = builderMap;
 
         string json = JsonUtility.ToJson(saveData);
@@ -318,12 +343,21 @@ public class EditorBuilder : MonoBehaviour
         
         using (StreamWriter sw = File.CreateText(path))
             sw.WriteLine(json);
-
+        AssetDatabase.Refresh();
     }
 
     public void LoadDataFile()
     {
+        string path = Application.dataPath + "\\Resources\\SaveFiles\\" + saveFileName + ".json";
+
+        if (!File.Exists(path))
+        {
+            Debug.LogWarning("File does not exist");
+            return;
+        }
+
         string json = Resources.Load<TextAsset>("SaveFiles\\" + saveFileName).text;
+
         SaveData saveData = JsonUtility.FromJson<SaveData>(json);
         tilesetName = saveData.tilesetName;
         dimensions = saveData.dimensions;
@@ -342,13 +376,15 @@ public class EditorBuilder : MonoBehaviour
     public void LoadOutputMap(int[] newBuilderMap)
     {
         Init();
-        LoadTiles();
+        TilesManager.LoadTilesTiled(tilesetName, true, false);
 
         for (int i = 0; i < newBuilderMap.Length; i++)
         {
             int[] pos = FromID(i);
             CreateTile(new Vector3Int(pos[0], pos[1], pos[2]), newBuilderMap[i]);
         }
+
+        LoadTiles();
     }
 
     protected int ID(int x, int y, int z)
@@ -383,8 +419,6 @@ public class EditorBuilder : MonoBehaviour
         }
         Debug.Log(map);
     }
-
-
 
     private bool IsOutputEmpty()
     {

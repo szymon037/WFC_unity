@@ -15,9 +15,9 @@ public class Cell
     public int[][] _compatible = new int[Model.tiles.Length][];
     private bool _ceiling;
     private bool _ground;
-    private int _x;
-    private int _y;
-    private int _z;
+    public int _x;
+    public int _y;
+    public int _z;
 
     public Cell(int index, float entropy, int[][] compatible, bool ground, bool ceiling, int x, int z, int y)
     {
@@ -106,8 +106,33 @@ public class Cell
             if (_compatible[n[i]][Model.opposite[dir]] == 0)
                 RemoveTile(n[i]);
         }
+
+        if (_possibilities == 0 && !Model.spawnedContr)
+        {
+            //Object.Instantiate(Resources.Load<GameObject>("Tiles\\Contradiction"), new Vector3(_x, _y, _z) * 4, Quaternion.identity);
+            //Model.spawnedContr = true;
+            //string dataCon = "CONTRADICTION: " + _x.ToString() + " " + _y.ToString() + " " + _z.ToString() + '\n';
+
+            //Debug.Log(dataCon);
+        }
+
+        /*if (!Model.spawnedContr)
+        {
+            string data = "tile: " + _x.ToString() + " " + _y.ToString() + " " + _z.ToString() + '\n';
+            for (int i = 0; i < _coefficients.Length; i++)
+            {
+                if (_coefficients[i])
+                    data += Model.tiles[i].GetName() + " ";
+            }
+
+            Debug.Log(data);
+        }*/
+        
+
         if (_possibilities == 1)
+        {
             ChooseTile();
+        }
     }
     public int[] GetRemovedTiles()
     {

@@ -33,7 +33,7 @@ public class WFC_Generator : MonoBehaviour
         OverlappingModel om = new OverlappingModel(dimensions.x, dimensions.y, dimensions.z, tileSize, false, N, N_depth, processTiles, input, overlapTileCreation, parent);
         om.offset = offset;
         om.Solve();
-        om.GenerateAllTiles();
+        //om.GenerateAllTiles();
         outputTransform = om.outputTransform;
     }
 

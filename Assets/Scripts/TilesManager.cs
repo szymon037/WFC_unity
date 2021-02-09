@@ -108,7 +108,7 @@ public static class TilesManager
         }
 
         tilesTiled = tilesList.ToArray();
-
+        reader.Close();
         return true;
     }
 
@@ -122,7 +122,6 @@ public static class TilesManager
             try
             {
                 adjacencies[i] = int.Parse(neighbours[i]);
-                Debug.Log("ParseStringAdjacencies: " + adjacencies[i]);
             }
             catch (FormatException)
             {
@@ -180,7 +179,7 @@ public static class TilesManager
         else
             rotationY = rotation.eulerAngles.y + 90f;
 
-        byte[] tileValues = new byte[6];
+        int[] tileValues = new int[6];
         tileValues[0] = tile._tileValues[5];
         tileValues[1] = tile._tileValues[4];
         tileValues[2] = tile._tileValues[2];
@@ -214,7 +213,7 @@ public static class TilesManager
             return RotateTile(tile);
         }
 
-        byte[] tileValues = new byte[6];
+        int[] tileValues = new int[6];
         tileValues[0] = tile._tileValues[1];
         tileValues[1] = tile._tileValues[0];
         tileValues[2] = tile._tileValues[2];

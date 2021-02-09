@@ -24,6 +24,8 @@ public abstract class Model
     public Transform outputTransform;
     public static int groundIndex = -1;
     public static bool[,] floorCheck;
+    public static bool spawnedContr = false;
+    protected bool unsolvable = false;
     ///TODO: clearing whole model on solve (so creating new Model is not needed)
 
     public Model(int gridWidth, int gridDepth, int gridLength, int tileSize, bool seamless, Transform parent = null)
@@ -34,7 +36,7 @@ public abstract class Model
         this.tileSize = tileSize;
         this.seamless = seamless;
         this.parent = parent;
-
+        spawnedContr = false;
         stackSize = 0;
     }
 
@@ -83,6 +85,9 @@ public abstract class Model
 
     public bool Solve()
     {
+        if (unsolvable)
+            return false;
+
         int result = 0;
         do
         {
@@ -92,7 +97,7 @@ public abstract class Model
         if (result == -1)
         {
             Debug.Log("Solution not found");
-
+            //GenerateOutput();
             return false;
         }
         else if (result == -2)
